@@ -1,3 +1,14 @@
+/*
+ * Bot Behavior
+ *     Target is < 9.9 on x10 payout
+ *     Auto bet 1 sat
+ *     Wait for a certain number of loss
+ *     When that is loss count reach that certain number stop betting 1
+ *     Bet 16 and increase by 10 percent on loss
+ *     Cut your losses after 10 loss
+ *     If you win, repeat steps and bet 1 sat again
+ */
+
 ele = {
     btnRoll : document.querySelector(".index__home__dice__wrap__cta.btn"),
     btnBetInputX2 : document.querySelector(".dice__control__content").children[2],
@@ -16,6 +27,7 @@ ele = {
 
 actionArr = [];
 actionIndex = null;
+lastRollResult = null;
 
 myDirection = 'ROLL UNDER';
 
@@ -52,10 +64,21 @@ function init() {
 
     // set on loss to reset bet
     actionArr.push('on loss reset');
+
+    actionArr.push('roll click');
+
+    actionArr.push('wait for result');
 }
 
 function mainLoop() {
     switch(actionArr[actionIndex]) {
+        case 'wait for result':
+            if( lastRollResult != ele.lastRollResult.innerText ) {
+                lastRollResult = ele.lastRollResult.innerText;
+                console.log(lastRollResult);
+            }
+        break;
+
         case 'init':
             console.log(actionArr[actionIndex]);
             init();
@@ -87,6 +110,10 @@ function mainLoop() {
         case 'set to manual':
             console.log(actionArr[actionIndex]);
             ele.btnManualBetting.click();
+            actionIndex++;
+        break;
+        case 'roll click':
+            ele.btnRoll.click();
             actionIndex++;
         break;
         case 'skip':
