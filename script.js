@@ -28,6 +28,10 @@ ele = {
 actionArr = [];
 actionIndex = null;
 lastRollResult = null;
+betting = false;
+consecLost = 0;
+waitForLoss = 10;
+waitForLoss = 10;
 
 myDirection = 'ROLL UNDER';
 
@@ -37,11 +41,24 @@ function addDelay(seconds) {
     }
 }
 
+function hasClass(element, cls) {
+    return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+}
+
 function setDummyBet() {
     while(ele.betAmountInput.value!=0) {
         ele.btnBetInputHalf.click();
     }
     for(a=0;a<1;a++) {
+        ele.btnBetInputX2.click();
+    }
+}
+
+function setRealBet() {
+    while(ele.betAmountInput.value!=0) {
+        ele.btnBetInputHalf.click();
+    }
+    for(a=0;a<5;a++) {
         ele.btnBetInputX2.click();
     }
 }
@@ -74,8 +91,80 @@ function mainLoop() {
     switch(actionArr[actionIndex]) {
         case 'wait for result':
             if( lastRollResult != ele.lastRollResult.innerText ) {
+                // Roll Result
                 lastRollResult = ele.lastRollResult.innerText;
-                console.log(lastRollResult);
+                //console.log(lastRollResult);
+
+                if(betting===false) {
+                    if( hasClass( ele.lastRollContainer, 'is-negative') ) {
+                    // dummy lost
+                        console.log('dummy lost');
+                        consecLost++;
+                    } else {
+                    //  dummy win
+                        console.log('dummy win');
+                        consecLost=0;
+                    }
+                    if(consecLost>=waitForLoss) {
+                        consecLost=0;
+
+                        // stop rolling
+                        actionArr.push('roll click');
+                        actionArr.push('skip');
+
+                        // set real betInput
+                        actionArr.push('set real bet');
+                        actionArr.push('skip');
+
+
+                        //set increase percent
+                        //actionArr.push('on loss increase');
+                        //actionArr.push('skip');
+
+                        //console.log("start auto");
+                        //betting = true;
+                        //actionArr.push('roll click');
+                        //actionArr.push('wait for result');
+
+                        actionIndex++;
+                    }
+
+                }
+                else {
+                    if( hasClass( ele.lastRollContainer, 'is-negative') ) {
+                    // loss
+                        consecLost++;
+                        if(consecLost>=waitForWin) {
+                            console.log("quiting... restart dummy bet");
+                            console.log('');
+                            actionArr.push("click bet");
+                            betting=false;
+                            actionArr.push("set dummy");
+                            actionArr.push("skip");
+                            actionArr.push("click bet");
+                            actionArr.push("wait new result");
+                            consecLost=0;
+                            actionIndex++;
+                        }
+                    } else {
+                    // win
+                        console.log("win2");
+                        console.log('');
+                        console.log("restart dummy bet");
+                        actionArr.push("click bet");
+                        betting=false;
+                        actionArr.push("set dummy");
+                        actionArr.push("skip");
+                        actionArr.push("click bet");
+                        actionArr.push("wait new result");
+                        actionIndex++;
+                        consecLost=0;
+                    }
+                }
+
+
+
+
             }
         break;
 
@@ -91,6 +180,12 @@ function mainLoop() {
             actionIndex++;
         break;
 
+        case 'set real bet':
+            console.log(actionArr[actionIndex]);
+            setRealBet();
+            actionIndex++;
+        break;
+
         case 'set to auto':
             console.log(actionArr[actionIndex]);
             ele.btnAutoBetting.click();
@@ -102,6 +197,12 @@ function mainLoop() {
             ele.btnOnLossReset.click();
             actionIndex++;
         break;
+
+        case 'on loss increase':
+            ele.btnOnLossIncrease.click();
+            actionIndex++;
+        break;
+
         case 'change direction':
             console.log(actionArr[actionIndex]);
             ele.btnDirection.click();
