@@ -67,9 +67,6 @@ function init() {
     // set to auto
     actionArr.push('set to auto');
 
-    // set dummy bet amount
-    actionArr.push('set dummy bet');
-
     /* pay out will have to be set manually before script starts */
 
     // change direction to under
@@ -79,11 +76,14 @@ function init() {
 
     /* set increase percentage manually before script starts */
 
-    // set on loss to reset bet
+    actionArr.push('set dummy bet');
+    actionArr.push('skip');
+
     actionArr.push('on loss reset');
+    actionArr.push('skip');
 
+    betting=false;
     actionArr.push('roll click');
-
     actionArr.push('wait for result');
 }
 
@@ -117,14 +117,14 @@ function mainLoop() {
                         actionArr.push('skip');
 
 
-                        //set increase percent
-                        //actionArr.push('on loss increase');
-                        //actionArr.push('skip');
+                        // set increase percent
+                        actionArr.push('on loss increase');
+                        actionArr.push('skip');
 
                         //console.log("start auto");
-                        //betting = true;
-                        //actionArr.push('roll click');
-                        //actionArr.push('wait for result');
+                        betting = true;
+                        actionArr.push('roll click');
+                        actionArr.push('wait for result');
 
                         actionIndex++;
                     }
@@ -137,12 +137,20 @@ function mainLoop() {
                         if(consecLost>=waitForWin) {
                             console.log("quiting... restart dummy bet");
                             console.log('');
-                            actionArr.push("click bet");
+                            actionArr.push('roll click');
+                            actionArr.push('skip');
+
+                            actionArr.push('set dummy bet');
+                            actionArr.push('skip');
+
+                            actionArr.push('on loss reset');
+                            actionArr.push('skip');
+
+
+
                             betting=false;
-                            actionArr.push("set dummy");
-                            actionArr.push("skip");
-                            actionArr.push("click bet");
-                            actionArr.push("wait new result");
+                            actionArr.push('roll click');
+                            actionArr.push('wait for result');
                             consecLost=0;
                             actionIndex++;
                         }
@@ -151,12 +159,18 @@ function mainLoop() {
                         console.log("win2");
                         console.log('');
                         console.log("restart dummy bet");
-                        actionArr.push("click bet");
+                        actionArr.push('roll click');
+                        actionArr.push('skip');
+
+                        actionArr.push('set dummy bet');
+                        actionArr.push('skip');
+
+                        actionArr.push('on loss reset');
+                        actionArr.push('skip');
+
                         betting=false;
-                        actionArr.push("set dummy");
-                        actionArr.push("skip");
-                        actionArr.push("click bet");
-                        actionArr.push("wait new result");
+                        actionArr.push('roll click');
+                        actionArr.push('wait for result');
                         actionIndex++;
                         consecLost=0;
                     }
@@ -183,6 +197,12 @@ function mainLoop() {
         case 'set real bet':
             console.log(actionArr[actionIndex]);
             setRealBet();
+            actionIndex++;
+        break;
+
+        case 'set dummy then roll':
+            setDummyBet();
+            ele.btnAutoBetting.click();
             actionIndex++;
         break;
 
@@ -214,6 +234,7 @@ function mainLoop() {
             actionIndex++;
         break;
         case 'roll click':
+            console.log(actionArr[actionIndex]);
             ele.btnRoll.click();
             actionIndex++;
         break;
