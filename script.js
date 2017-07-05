@@ -12,10 +12,10 @@
 /**************************************************
  *      BOT STATUS
  *      Behavior works perfectly
- *      but there is one but
- *      on real bet the starting amount is correct
+ *      but there is one bug
+ *      on real bet, the starting amount is correct
  *      but on dummy bet, the starting amount should be 1
- *      but after clicking auto roll it becomes zer0
+ *      and it is 1 but after clicking auto roll it becomes zer0
  *      ******** HELP PLEASE **********************
  **************************************************/
 
