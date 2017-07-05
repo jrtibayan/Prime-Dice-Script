@@ -9,6 +9,16 @@
  *     If you win, repeat steps and bet 1 sat again
  */
 
+/**************************************************
+ *      BOT STATUS
+ *      Behavior works perfectly
+ *      but there is one but
+ *      on real bet the starting amount is correct
+ *      but on dummy bet, the starting amount should be 1
+ *      but after clicking auto roll it becomes zer0
+ *      ******** HELP PLEASE **********************
+ **************************************************/
+
 ele = {
     btnRoll : document.querySelector(".index__home__dice__wrap__cta.btn"),
     btnBetInputX2 : document.querySelector(".dice__control__content").children[2],
