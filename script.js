@@ -40,8 +40,8 @@ actionIndex = null;
 lastRollResult = null;
 betting = false;
 consecLost = 0;
-waitForLoss = 10;
-waitForLoss = 10;
+waitForLoss = 24;
+waitForWin = 10;
 
 betX2Clicks = 0;
 betX2ClicksDummy = 1;
