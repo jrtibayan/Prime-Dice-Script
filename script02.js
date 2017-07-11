@@ -18,7 +18,8 @@ ele = {
     directionSpan: document.querySelector(".index__home__dice__card__bet-ui").children[1].children[1].children[0].children[0].children[0].children[1].children[0]
 };
 
-pattern = 4;
+pattern = 7;
+baseBetx2Clicks = 1;
 rollDirs = [];
 myDirs = [];
 lastRollResult = null;
@@ -35,7 +36,7 @@ function setBetZero() {
 
 function setBetAmount() {
     setBetZero();
-    for(a=0;a<1;a++) {
+    for(a=0;a<baseBetx2Clicks;a++) {
         ele.x2Btn.click();
     }
 }
