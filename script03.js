@@ -1,3 +1,21 @@
+/*
+ * Bot Behavior
+ *     on x10 payout after a hit below 9.90 bet only on first 21 rolls
+ *     If 21 rolls fail bet dummy till dummy will and bet again on first 21 rolls
+ * Reason for this behavior
+ *     My prevous stat result
+ *         on 3076 rounds there was 2721 hits on the first 21 rolls
+ *         that is 88%+ of total rounds
+ *     I will add more stat later on
+ * Status
+ *     Behavior works fine.
+ *     A little bug is found that needs fixing
+ *         getMyBal() sometimes get the not updated value after win
+ *             maybe because after win it records too fast and
+ *                 didnt wait for bal to be updated before getting it
+ *
+ */
+
 ele = {
     betBtn: document.querySelector(".index__home__dice__wrap__cta.btn"),
     halfBtn: document.querySelector(".dice__control__content").children[1],
@@ -11,35 +29,46 @@ ele = {
     onLossIncreaseBtn: document.querySelector(".index__home__dice__automated-switch").children[0].children[0].children[0].children[1].children[0].children[1]
 };
 
-startBal = 0;
-
 stat = {
     lossBeforeWinOnx10Bot: {},
-    winLoss: []
+    winLoss: [],
+    lowestBal: 1000,
+    rounds: {}
 };
-lossBeforeWinOnx10BotCounter = 0;
 
-actionArr = [];
+startBal = 0;
+targetIncome = 0.00020000;
+targetBal = 0;
+waitForWin = 21;
+
+lossBeforeWinOnx10BotCounter = 0;
+roundCount = 1;
 consecLost = 0;
+actionArr = [];
 lastRollResult = null;
 betting =  null;
-waitForLoss = 24;
-waitForWin = 20;
 
-function recordStartBal() {
-    startBal = getMyBal();
-}
 
-function hasClass(element, cls) {
-    return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
-}
-function getMyBal() {
-    return parseFloat(ele.myBal.innerText.split(" ")[0]).toFixed(8);
-}
-
+function getMyBal() { return parseFloat(ele.myBal.innerText.split(" ")[0]).toFixed(8); }
 function getBetInput() { return parseFloat(ele.betInput.value).toFixed(8); }
-
 function getCurrentDirection() { return ele.directionSpan.innerText; }
+
+function recordStartBal() { startBal = parseFloat(getMyBal()); }
+function recordTargetBal() { targetBal = targetIncome + startBal; }
+function recordLowestBalIfItIsLowest() { if( stat.lowestBal > parseFloat(getMyBal()) ) { stat.lowestBal = parseFloat(getMyBal()); } }
+
+function hasClass(element, cls) { return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1; }
+
+function iWon() { return (!hasClass(ele.lastRollContainer, 'is-negative')); }
+
+function newRollFound() { return (lastRollResult != ele.lastRollSpan.innerText); }
+
+function recordRoundResult(wOrL) {
+    stat.rounds['round'+roundCount] = wOrL + '-' + getMyBal();
+    console.log('Round ' + roundCount + ' result [' + stat.rounds['round'+roundCount] + ']' );
+    roundCount++; // new round
+}
+
 
 function setDummyBet() {
     betting = false;
@@ -61,6 +90,22 @@ function setRealBet() {
         ele.x2Btn.click();
     }
     console.log('Real Bet Set to ' + ele.betInput.value + ' till ' + waitForWin + ' LOSS');
+}
+
+function finish() {
+    console.log("Stopping.. Reached target balance");
+    console.log("Started with " + parseFloat(startBal).toFixed(8));
+    console.log("Current Bal  " + getMyBal());
+    ele.betBtn.click();
+    actionIndex+= 1000;
+}
+
+function targetIsReached() {
+    if( parseFloat(getMyBal()) > targetBal) {
+        console.log('Target is Reached Please STOP');
+        return true;
+    }
+    return false;
 }
 
 function pushStopAuto() {
@@ -95,11 +140,14 @@ function pushStartDummyAuto() {
     actionArr.push("set dummy");
     actionArr.push("skip");
 
+    actionArr.push("set reset");
+    actionArr.push("skip");
+
     actionArr.push("click bet");
     actionArr.push("wait new result");
 }
 
-function iWon() { return (!hasClass(ele.lastRollContainer, 'is-negative')); }
+
 
 function recordHitsOnLess990() {
     if(parseFloat(ele.lastRollSpan.innerHTML)<9.90) {
@@ -116,21 +164,18 @@ function recordHitsOnLess990() {
     }
 }
 
-function newRollFound() {
-    return (lastRollResult != ele.lastRollSpan.innerText);
-}
-
 function mainLoop() {
     switch(actionArr[actionIndex]) {
         case "init":
-            console.log('init start')
             console.log('start');
             recordStartBal(); // store my start bal so i can compare for income
+            recordTargetBal(); // compute target balance and store to stop after reaching desired win.
+            recordLowestBalIfItIsLowest(); // record lowest bal just for stat
+
+
             setDummyBet(); // dummy bet first and find the first win and start betting there
             actionArr.push("wait new result");
             actionIndex++;
-            console.log('init end');
-            console.log('');
         break;
 
         case "skip":
@@ -161,9 +206,13 @@ function mainLoop() {
             //console.log('');
         break;
 
+        case "set reset":
+            ele.onLossResetBtn.click();
+            actionIndex++;
+        break;
+
         case "set dummy":
             //console.log('set dummy start');
-            ele.onLossResetBtn.click();
             setDummyBet();
             actionIndex++;
             //console.log('set dummy end');
@@ -181,12 +230,26 @@ function mainLoop() {
                 if( betting === false ) {
                     //console.log('Dummy only. My Bet now is ' + getBetInput())
                     if( iWon() ) {
-                        console.log('Dummy win')
-                        consecLost=0;
-                        pushStopAuto();
-                        pushStartRealAuto();
-                        actionIndex++;
+                        console.log('Dummy win');
+
+                        if(consecLost>=waitForWin) {
+                            recordRoundResult('L');
+                        }
+
+                        if(targetIsReached()) {
+                            finish();
+                            console.log('STOP STOP STOP');
+                        } else {
+                            consecLost=0;
+                            console.log('');
+                            console.log("restart real bet");
+                            pushStopAuto();
+                            pushStartRealAuto();
+                            actionIndex++;
+                        }
                     } else {
+                        console.log('dummy loss');
+                        recordLowestBalIfItIsLowest();
                         consecLost++;
                     }
                 }
@@ -194,21 +257,26 @@ function mainLoop() {
                     //console.log('Real bet. My Bet now is ' + getBetInput())
                     if( iWon() ) {
                     // win
-                        consecLost=0;
                         stat.winLoss.push('won');
                         console.log("Real Win");
-                        console.log('');
-                        console.log("restart real bet");
+                        recordRoundResult('W');
 
-                        pushStopAuto();
-                        pushStartRealAuto();
-                        actionIndex++;
+                        if(targetIsReached()) {
+                            finish();
+                        } else {
+                            console.log('');
+                            console.log("restart real bet");
+                            consecLost=0;
+                            pushStopAuto();
+                            pushStartRealAuto();
+                            actionIndex++;
+                        }
                     } else {
                     // loss
                         console.log("real loss");
+                        recordLowestBalIfItIsLowest();
                         consecLost++;
                         if(consecLost>=waitForWin) {
-
                             stat.winLoss.push('lost');
                             console.log("quiting real bet... dummy bet til win");
                             console.log('');
