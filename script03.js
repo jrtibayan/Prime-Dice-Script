@@ -211,6 +211,23 @@ function mainLoop() {
             actionIndex++;
         break;
 
+        case "record round result L":
+            recordRoundResult('L');
+            actionIndex++;
+        break;
+
+        case "record round result W":
+            recordRoundResult('W');
+            actionIndex++;
+        break;
+
+        case "check if target reached":
+            if(targetIsReached()) {
+                finish();
+            }
+            actionIndex++;
+        break;
+
         case "set dummy":
             //console.log('set dummy start');
             setDummyBet();
@@ -231,22 +248,15 @@ function mainLoop() {
                     //console.log('Dummy only. My Bet now is ' + getBetInput())
                     if( iWon() ) {
                         console.log('Dummy win');
-
+                        consecLost=0;
+                        console.log('');
+                        console.log("restart real bet");
+                        pushStopAuto();
                         if(consecLost>=waitForWin) {
-                            recordRoundResult('L');
+                            actionArr.push("record round result L");
                         }
-
-                        if(targetIsReached()) {
-                            finish();
-                            console.log('STOP STOP STOP');
-                        } else {
-                            consecLost=0;
-                            console.log('');
-                            console.log("restart real bet");
-                            pushStopAuto();
-                            pushStartRealAuto();
-                            actionIndex++;
-                        }
+                        pushStartRealAuto();
+                        actionIndex++;
                     } else {
                         console.log('dummy loss');
                         recordLowestBalIfItIsLowest();
@@ -259,18 +269,13 @@ function mainLoop() {
                     // win
                         stat.winLoss.push('won');
                         console.log("Real Win");
-                        recordRoundResult('W');
-
-                        if(targetIsReached()) {
-                            finish();
-                        } else {
-                            console.log('');
-                            console.log("restart real bet");
-                            consecLost=0;
-                            pushStopAuto();
-                            pushStartRealAuto();
-                            actionIndex++;
-                        }
+                        console.log('');
+                        consecLost=0;
+                        pushStopAuto();
+                        actionArr.push("record round result W");
+                        actionArr.push("check if target reached");
+                        pushStartRealAuto();
+                        actionIndex++;
                     } else {
                     // loss
                         console.log("real loss");
