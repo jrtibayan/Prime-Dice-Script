@@ -117,5 +117,3 @@ actionArr.push('init');
 actionIndex = 0;
 
 setInterval(mainLoop, 1000);
-
-ele.directionSpan.click();
