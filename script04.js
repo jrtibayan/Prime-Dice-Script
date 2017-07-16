@@ -193,4 +193,4 @@ function mainLoop() {
 actionArr.push('init');
 actionIndex = 0;
 
-setInterval(mainLoop, 1000);
+setInterval(function() { mainLoop(); }, 1000);
