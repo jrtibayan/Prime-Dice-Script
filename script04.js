@@ -63,12 +63,17 @@ function setBetZero() {
 
 function lossCount() {
     lCount = 0;
+    bets = 0;
     for(a=1;a<winsBeforeLoss.length;a++) {
         if(winsBeforeLoss[a]===winsBeforeLoss[a-1] && winsBeforeLoss[a]>winsCriticalLow) {
             console.log('Lost at index ' + a + '. Wins: ' + winsBeforeLoss[a]);
             lCount++;
         }
+        if(winsBeforeLoss[a]>=winsBeforeLoss[a-1] && winsBeforeLoss[a] > winsCriticalLow) {
+            bets++;
+        }
     }
+    console.log('Total Bets ' + bets +'. Lost ' + lCount + ' times.');
     return lCount;
 }
 
