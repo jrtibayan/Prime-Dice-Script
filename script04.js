@@ -62,14 +62,14 @@ function setBetZero() {
 }
 
 function lossCount() {
-    lossCount = 0;
+    lCount = 0;
     for(a=1;a<winsBeforeLoss.length;a++) {
         if(winsBeforeLoss[a]===winsBeforeLoss[a-1] && winsBeforeLoss[a]>winsCriticalLow) {
-            console.log('Lost at index ' + a);
-            lossCount++;
+            console.log('Lost at index ' + a + '. Wins: ' + winsBeforeLoss[a]);
+            lCount++;
         }
     }
-    return lossCount;
+    return lCount;
 }
 
 function setDummyAmount() {
