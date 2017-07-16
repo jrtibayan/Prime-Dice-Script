@@ -69,7 +69,7 @@ function lossCount() {
             console.log('Lost at index ' + a + '. Wins: ' + winsBeforeLoss[a]);
             lCount++;
         }
-        if(winsBeforeLoss[a]>=winsBeforeLoss[a-1] && winsBeforeLoss[a] > winsCriticalLow) {
+        if(winsBeforeLoss[a]>=winsBeforeLoss[a-1] && winsBeforeLoss[a-1] > winsCriticalLow) {
             bets++;
         }
     }
