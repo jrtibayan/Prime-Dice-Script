@@ -39,10 +39,11 @@ winsBeforeLoss = [];
 winCount = 0;
 lastRollResult = null;
 setBet = 0;
+restCount = 0;
 
-dummyx2Clicks = 11;
-baseBetx2Clicks = 16;
-specialBetx2Clicks = 21;
+dummyx2Clicks = 0;
+baseBetx2Clicks = 11;
+specialBetx2Clicks = 18;
 revenge = false;
 // 5 = 0.000000016
 // 10 = 0.00000500
@@ -141,6 +142,7 @@ function mainLoop() {
         case "wait new result":
             // do something only if new result is found
             if( lastRollResult != ele.lastRollSpan.innerText ) {
+                restCount = 0;
                 lastRollResult = ele.lastRollSpan.innerText;
                 if( hasClass( ele.lastRollContainer, 'is-negative') ) {
                     if(setBet!=1) {
@@ -185,6 +187,12 @@ function mainLoop() {
                     actionArr.push("wait new result");
                 }
                 actionIndex++;
+            } else {
+                restCount++;
+                if(restCount===10) {
+                    restCount = 0;
+                    ele.betBtn.click();
+                }
             }
         break;
     }
