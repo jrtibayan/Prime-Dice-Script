@@ -21,7 +21,16 @@
  *         The hits on roll 26th to 100+ is virtually my win
  *         on 3076 rounds there was 2721 hits on the first 21 rolls
  * Status
- *     Will start this another day
+ *     Behavior is perfectly working but
+ *     Seems this will is not perfect strategy since
+ *     it seems its  still possible to get another fail on the revenge bet
+ *     on the next bet chance
+ * Idea for better strategy?
+ *     find 3 consecutive loss on target before betting all?
+ *     maybe just target 7wins to 10?
+ *     or just monitor all since I will not be betting
+ *     and just bet all on that sure bet
+ *     this will be my script 5
  *
  */
 
