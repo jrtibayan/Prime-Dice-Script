@@ -146,6 +146,35 @@ function highestConsecutiveLosses() {
     return results;
 }
 
+function findLongestStreakHitBelow20() {
+    results = {};
+    counter = 0;
+    highest = {index:[],count:0};
+    for(a=0;a<winsBeforeLoss.length;a++) {
+        if(winsBeforeLoss[a]<20) {
+            counter++;
+        } else {
+            if(results['c'+counter]==undefined) {
+                results['c'+counter] = 0;
+                results['c'+counter+'Indexes']=[];
+            }
+            results['c'+counter]++;
+            results['c'+counter+'Indexes'].push(a);
+
+            if(counter>highest.count) {
+                highest.count = counter;
+                highest.index = [];
+                highest.index.push(a);
+            }
+            else if(counter>=highest.count) {
+                highest.index.push(a);
+            }
+            counter = 0;
+        }
+    }
+    return results;
+}
+
 
 function mainLoop() {
     switch(actionArr[actionIndex]) {
