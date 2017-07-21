@@ -99,6 +99,53 @@ function allConditionForSpecialIsTrue(target) {
     }
 }
 
+function consecutiveCounts(cons) {
+    results = [];
+    for(a=0;a<winsBeforeLoss.length;a++) {
+        for(b=a+1, success = true;b<=(a+cons-1);b++) {
+            if(winsBeforeLoss[a]!=winsBeforeLoss[b]) {
+                success = false;
+            }
+        }
+
+        if(success) {
+            if(winsBeforeLoss[a]>1) {
+                results.push(a);
+            }
+        }
+    }
+    return results;
+}
+
+
+
+function highestConsecutiveLosses() {
+    highest = {count:0,index:[]};
+    counter=0;
+    results = [];
+    for(a=0;a<winsBeforeLoss.length;a++){
+        if(winsBeforeLoss[a]==0){
+            counter++;
+        }
+        else {
+            if(highest.count<counter) {
+                highest.count = counter;
+                highest.index = [];
+                highest.index.push(a-1);
+            }
+            else if(highest.count===counter){
+                highest.index.push(a-1);
+            }
+            if(counter>1){
+                results.push({index:a-1,count:counter});
+            }
+            counter = 0;
+        }
+    }
+    console.log(highest)
+    return results;
+}
+
 
 function mainLoop() {
     switch(actionArr[actionIndex]) {
@@ -135,7 +182,7 @@ function mainLoop() {
                         consecLost = 1;
                         //console.log('reset consec ' + winCount + ' not equal to ' + winsBeforeLoss[winsBeforeLoss.length-2]);
                     }
-                    console.log('Consecutive Lost Count: '+consecLost+ ' @win: ' +winCount);
+                    //console.log('Consecutive Lost Count: '+consecLost+ ' @win: ' +winCount);
 
                     if(setBet!=1) {
                         console.log('Lost real bet! Make Revenge Bet')
