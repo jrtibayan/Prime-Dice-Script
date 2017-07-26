@@ -65,12 +65,6 @@ winsCriticalHigh = 24; // DONT CHANGE
 
 actionArr = [];
 
-function setBetZero() {
-    while(ele.betInput.value!=0) {
-        ele.halfBtn.click();
-    }
-}
-
 function lossCount() {
     lCount = 0;
     bets = 0;
@@ -85,6 +79,12 @@ function lossCount() {
     }
     console.log('Total Bets ' + bets +'. Lost ' + lCount + ' times.');
     return lCount;
+}
+
+function setBetZero() {
+    while(ele.betInput.value!=0) {
+        ele.halfBtn.click();
+    }
 }
 
 function setDummyAmount() {
@@ -102,6 +102,15 @@ function setBetAmount() {
     }
     setBet = 2;
     console.log('betting NORMAL');
+}
+
+function setSpecialAmount() {
+    setBetZero();
+    for(a=0;a<specialBetx2Clicks;a++) {
+        ele.x2Btn.click();
+    }
+    setBet = 3;
+    console.log('betting SPECIAL');
 }
 
 function setSpecialAmount() {

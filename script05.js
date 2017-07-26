@@ -31,7 +31,7 @@ ele = {
 
 restCount = 0;
 dummyx2Clicks = 0;
-baseBetx2Clicks = 11;
+baseBetx2Clicks = 5;
 specialBetx2Clicks = 18;
 targetConsec = 3;
 
@@ -94,8 +94,12 @@ function ifTargetReachedEndBetting() {
 function allConditionForSpecialIsTrue(target) {
     if( winCount === target && consecLost === targetConsec && target > 1 ) {
         console.log('Going to bet special');
-        console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
+        //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
         setSpecialAmount();
+    } else if(winCount === target && consecLost === targetConsec-1 && target > 1) {
+        console.log('Going to bet regular');
+        //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
+        setBetAmount();
     }
 }
 
@@ -214,7 +218,8 @@ function mainLoop() {
                     //console.log('Consecutive Lost Count: '+consecLost+ ' @win: ' +winCount);
 
                     if(setBet!=1) {
-                        console.log('Lost real bet! Make Revenge Bet')
+                        console.log('Lost real bet! Make Revenge Bet');
+                        console.log('Record is on '+winsBeforeLoss[winsBeforeLoss.length-1]);
                         revenge = true;
                     }
 
@@ -222,6 +227,20 @@ function mainLoop() {
                     winCount = 0;
                 } else {
                     winCount++;
+
+                    switch(setBet) {
+                        case 2:
+                            console.log('Won Real Bet');
+                            console.log('Record is on '+winsBeforeLoss[winsBeforeLoss.length-1]);
+                            console.log('');
+                        break;
+                        case 3:
+                            console.log('Won Revenge Bet');
+                            console.log('Record is on '+winsBeforeLoss[winsBeforeLoss.length-1]);
+                            console.log('');
+                        break;
+                    }
+
                     //console.log('win');
                     // set default bet to dummy
                     setDummyAmount();
