@@ -112,15 +112,20 @@ function ifTargetReachedEndBetting() {
 
 function allConditionForSpecialIsTrue(target) {
     if( winCount === target && consecLost === targetConsec && target > 1 ) {
-        console.log('Going to bet special');
+        // major bet
+        console.log('Going to bet major');
         //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
         setSpecialAmount();
-    } else if(winCount === target && consecLost === targetConsec-1 && target > 1) {
-        /*
-        console.log('Going to bet regular');
+    } else if(winCount === target && consecLost === targetConsec-1 && target > 1 && revenge===false) {
+        // minor bet
+        // its okay to turn on minor bet as long as win on major bet can cover its loss
+        //      plus income
+        // no minor bet will be made if waiting for revenge bet
+
+        console.log('Going to bet minor');
         //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
         setBetAmount();
-        */
+
        console.log('Real Bet Opportunity. PASS/SKIP');
     }
 }
@@ -254,11 +259,16 @@ function mainLoop() {
                         console.log(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
                     }
 
-
-                    if(setBet!=1) {
-                        console.log('Lost real bet! Make Revenge Bet');
-                        console.log('Record is on '+(winsBeforeLoss.length-1));
-                        revenge = true;
+                    switch(setBet) {
+                        case 2:
+                            console.log('Lost minor bet! I will get my revenge!');
+                            console.log('Record is on '+(winsBeforeLoss.length-1));
+                            revenge = true;
+                        break;
+                        case 3:
+                            console.log('Lost major bet! Oh NOOOOO!');
+                            console.log('Record is on '+(winsBeforeLoss.length-1));
+                        break;
                     }
 
                     setDummyAmount();
@@ -272,7 +282,7 @@ function mainLoop() {
                             console.log('');
                         break;
                         case 3:
-                            console.log('Won Revenge Bet');
+                            console.log('Won Major Bet');
                             console.log('Record is on '+(winsBeforeLoss.length-1));
                             console.log('');
                             revenge = false;
