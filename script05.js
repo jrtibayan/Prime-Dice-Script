@@ -18,6 +18,8 @@
  *
  */
 
+records = {};
+
 ele = {
     betBtn: document.querySelector(".index__home__dice__wrap__cta.btn"),
     halfBtn: document.querySelector(".dice__control__content").children[1],
@@ -32,7 +34,7 @@ ele = {
 restCount = 0;
 dummyx2Clicks = 0;
 baseBetx2Clicks = 5;
-specialBetx2Clicks = 18;
+specialBetx2Clicks = 21;
 targetConsec = 3;
 
 winsBeforeLoss = [];
@@ -41,6 +43,13 @@ consecLost = 1;
 lastRollResult = null;
 setBet = 0;
 winCount = 0;
+
+function getFormattedDate() {
+    var date = new Date();
+    var str = date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " +  date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+
+    return str;
+}
 
 
 function winCountSameAsPrevious(wins) {
@@ -97,9 +106,12 @@ function allConditionForSpecialIsTrue(target) {
         //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
         setSpecialAmount();
     } else if(winCount === target && consecLost === targetConsec-1 && target > 1) {
+        /*
         console.log('Going to bet regular');
         //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
         setBetAmount();
+        */
+       console.log('Real Bet Opportunity. PASS/SKIP');
     }
 }
 
@@ -115,12 +127,15 @@ function consecutiveCounts(cons) {
         if(success) {
             if(winsBeforeLoss[a]>1) {
                 results.push(a);
+                if(records.LostAbove4===undefined) {
+                    records.LostAbove4 = '';
+                }
+                records.LostAbove4 = records.LostAbove4 + '\n' + cons + ' loss @ ' + winsBeforeLoss[a] + ' on record '+ a + ' - NO DATE';
             }
         }
     }
     return results;
 }
-
 
 
 function highestConsecutiveLosses() {
@@ -207,6 +222,7 @@ function mainLoop() {
                 if( hasClass( ele.lastRollContainer, 'is-negative') ) {
                     // record how many wins before lost
                     winsBeforeLoss.push(winCount);
+
                     //console.log('wincount ' + winCount);
                     if(winCountSameAsPrevious(winCount)) {
                         consecLost++;
@@ -217,9 +233,20 @@ function mainLoop() {
                     }
                     //console.log('Consecutive Lost Count: '+consecLost+ ' @win: ' +winCount);
 
+
+                    if(consecLost>=4) {
+                        if(records['consec'+consecLost+'LostOn'+winCount]===undefined) {
+                            records['consec'+consecLost+'LostOn'+winCount] = [];
+                        }
+                        records['consec'+consecLost+'LostOn'+winCount].push(winsBeforeLoss.length-1);
+                        records.LostAbove4 = records.LostAbove4 + '\n' + consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate();
+                        console.log(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
+                    }
+
+
                     if(setBet!=1) {
                         console.log('Lost real bet! Make Revenge Bet');
-                        console.log('Record is on '+winsBeforeLoss[winsBeforeLoss.length-1]);
+                        console.log('Record is on '+(winsBeforeLoss.length-1));
                         revenge = true;
                     }
 
@@ -227,17 +254,17 @@ function mainLoop() {
                     winCount = 0;
                 } else {
                     winCount++;
-
                     switch(setBet) {
                         case 2:
                             console.log('Won Real Bet');
-                            console.log('Record is on '+winsBeforeLoss[winsBeforeLoss.length-1]);
+                            console.log('Record is on '+(winsBeforeLoss.length-1));
                             console.log('');
                         break;
                         case 3:
                             console.log('Won Revenge Bet');
-                            console.log('Record is on '+winsBeforeLoss[winsBeforeLoss.length-1]);
+                            console.log('Record is on '+(winsBeforeLoss.length-1));
                             console.log('');
+                            revenge = false;
                         break;
                     }
 
