@@ -13,12 +13,18 @@
  *         bet 4: if I lost wait for 7 wins again then ALL OR NOTHING bet
  *         if I won on any of the first three bets lossCount = 0
  * Status
- *
- *
- *
+ *     Works but is very slow
+ *     1 bet every 2-7 days
+ *     So in 30days thats 40% - 100%+ income
+ *     So in P2000 starting balance
+ *         income would be 800-2000 a month
+ *     And in that slow income it may still be possible to lose
+ *     I havent verified it yet
  */
 
-records = {};
+records = {
+    rolls: []
+};
 
 ele = {
     betBtn: document.querySelector(".index__home__dice__wrap__cta.btn"),
@@ -96,8 +102,12 @@ function hasClass(element, cls) {
     return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
 }
 
+function recordRoll(rolledNum) {
+    records.rolls.push(rolledNum);
+}
+
 function ifTargetReachedEndBetting() {
-    actionIndex+=1000;
+    //actionIndex+=1000;
 }
 
 function allConditionForSpecialIsTrue(target) {
@@ -218,6 +228,7 @@ function mainLoop() {
             if( lastRollResult != ele.lastRollSpan.innerText ) {
                 restCount = 0;
                 lastRollResult = ele.lastRollSpan.innerText;
+                recordRoll(lastRollResult);
 
                 if( hasClass( ele.lastRollContainer, 'is-negative') ) {
                     // record how many wins before lost
