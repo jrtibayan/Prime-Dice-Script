@@ -24,7 +24,8 @@
 
 records = {
     rolls: [],
-    log: []
+    log: [],
+    logStyle: []
 };
 
 ele = {
@@ -34,9 +35,12 @@ ele = {
     betInput: document.getElementById("betSize"),
     lastRollContainer: document.querySelector(".index__home__indicator__inner__number__roll"),
     lastRollSpan: document.querySelector(".index__home__indicator__inner__number__roll").children[1],
-    directionSpan: document.querySelector(".index__home__dice__card__bet-ui").children[1].children[1].children[0].children[0].children[0].children[1].children[0]
+    directionSpan: document.querySelector(".index__home__dice__card__bet-ui").children[1].children[1].children[0].children[0].children[0].children[1].children[0],
+    myBal: document.querySelector(".index__home__header__balance__btc").children[1]
 };
 
+startBal = 0;
+lastBalLog = new Date();
 
 restCount = 0;
 dummyx2Clicks = 0;
@@ -51,6 +55,8 @@ lastRollResult = null;
 setBet = 0;
 winCount = 0;
 revenge = false;
+
+function getMyBal() { return parseFloat(ele.myBal.innerText.split(" ")[0]); }
 
 function getFormattedDate() {
     var date = new Date();
@@ -182,6 +188,27 @@ function highestConsecutiveLosses() {
     return results;
 }
 
+function displayLog() {
+    for(a=0;a<records.logStyle.length;a++) {
+        for(b=0;b<10;b++){
+            records.logStyle[a][b]=(records.logStyle[a][b]===undefined)? '':records.logStyle[a][b];
+        }
+        console.log(
+            records.log[a],
+            records.logStyle[a][0],
+            records.logStyle[a][1],
+            records.logStyle[a][2],
+            records.logStyle[a][3],
+            records.logStyle[a][4],
+            records.logStyle[a][5],
+            records.logStyle[a][6],
+            records.logStyle[a][7],
+            records.logStyle[a][8],
+            records.logStyle[a][9]
+        );
+    }
+}
+
 function findLongestStreakHitBelow20() {
     results = {};
     counter = 0;
@@ -211,12 +238,65 @@ function findLongestStreakHitBelow20() {
     return results;
 }
 
+function logCurrentBalanceAndIncome() {
+    newDate = new Date();
+    if(lastBalLog.getTime()+(1000*60*60*24) < newDate.getTime()) {
+        // run every 24 hours
+        console.log('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
+        records.log.push('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
+        lastBalLog=newDate;
+    }
+}
+
+function getIncome() {
+    return parseFloat((getMyBal()-startBal).toFixed(8));
+}
+
+function getIncomePercent() {
+    return parseInt((getIncome()/(startBal/100)).toFixed(0));
+}
+
+function logWinLoss(result,message) {
+    if(result==='WIN') {
+        console.log(
+            message,
+            'background: green; color: white;',
+            'background: #222; color: #bada55;',
+            'background: blue; color: yellow;',
+            'background: blue; color: grey;'
+        );
+        records.logStyle.push([
+            'background: red; color: white;',
+            'background: #222; color: #bada55;',
+            'background: blue; color: yellow;',
+            'background: blue; color: grey;'
+        ]);
+    } else {
+        console.log(
+            message,
+            'background: red; color: white;',
+            'background: #222; color: #bada55;',
+            'background: blue; color: yellow;',
+            'background: blue; color: grey;'
+        );
+
+    }
+    records.log.push(message);
+    records.logStyle.push([
+        (result==='WIN') ? 'background: green; color: white;':'background: red; color: white;',
+        'background: #222; color: #bada55;',
+        'background: blue; color: yellow;'
+    ]);
+}
+
 
 function mainLoop() {
+    logCurrentBalanceAndIncome();
     switch(actionArr[actionIndex]) {
         case "init":
             console.log('initializing...');
             lastRollResult = ele.lastRollSpan.innerText;
+            startBal = getMyBal();
             setBetZero();
             winsBeforeLoss.push(999);
 
@@ -264,15 +344,13 @@ function mainLoop() {
 
                     switch(setBet) {
                         case 2:
-                            message = 'Lost minor bet! I will get my revenge! Record is on '+(winsBeforeLoss.length-1);
-                            console.log(message);
-                            records.log.push(message);
+                            message = '%c Lost minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                            logWinLoss('LOSS',message);
                             //revenge = true;
                         break;
                         case 3:
-                            message = 'Lost major bet! Oh NOOOOO! Record is on '+(winsBeforeLoss.length-1);
-                            console.log(message);
-                            records.log.push(message);
+                            message = '%c Lost major bet! Oh NOOOOO! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                            logWinLoss('LOSS',message);
                             console.log('');
                         break;
                     }
@@ -283,10 +361,12 @@ function mainLoop() {
                     winCount++;
                     switch(setBet) {
                         case 2:
-                            console.log('Won minor bet! Record is on '+(winsBeforeLoss.length-1));
+                            message = '%c Won minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                            logWinLoss('WIN',message);
                         break;
                         case 3:
-                            console.log('Won major bet! Record is on '+(winsBeforeLoss.length-1));
+                            message = '%c Won major bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                            logWinLoss('WIN',message);
                             revenge = false;
                         break;
                     }
