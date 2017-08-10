@@ -40,12 +40,12 @@ ele = {
 };
 
 startBal = 0;
-lastBalLog = new Date();
+lastBalLog = null;
 
 restCount = 0;
 dummyx2Clicks = 0;
-baseBetx2Clicks = 9;
-specialBetx2Clicks = 13;
+baseBetx2Clicks = 12;
+specialBetx2Clicks = 18;
 targetConsec = 3;
 
 winsBeforeLoss = [];
@@ -119,22 +119,23 @@ function ifTargetReachedEndBetting() {
 }
 
 function allConditionForSpecialIsTrue(target) {
-    if( winCount === target && consecLost === targetConsec && target > 1 ) {
-        // major bet
-        //console.log('Going to bet major');
-        //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
-        setSpecialAmount();
-    } else if(winCount === target && consecLost === targetConsec-1 && target > 1 && revenge===false) {
-        // minor bet
-        // its okay to turn on minor bet as long as win on major bet can cover its loss
-        //      plus income
-        // no minor bet will be made if waiting for revenge bet
+    if(target>1 && winCount === target) {
+        if( consecLost === targetConsec-1 && revenge === true) {
+            // major bet
+            //console.log('Going to bet major');
+            //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
+            setSpecialAmount();
+        } else if(consecLost === targetConsec-1 && revenge===false) {
+            // minor bet
+            // its okay to turn on minor bet as long as win on major bet can cover its loss
+            //      plus income
+            // no minor bet will be made if waiting for revenge bet
 
-        //console.log('Going to bet minor');
-        //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
-        setBetAmount();
-
-       //console.log('Real Bet Opportunity. PASS/SKIP');
+            //console.log('Going to bet minor');
+            //console.log('because index[' + (winsBeforeLoss.length-1) + ' ' +  (winsBeforeLoss.length-2) + ' ' + (winsBeforeLoss.length-3) +'] are all ' + target);
+            setBetAmount();
+           //console.log('Real Bet Opportunity. PASS/SKIP');
+        }
     }
 }
 
@@ -240,11 +241,13 @@ function findLongestStreakHitBelow20() {
 
 function logCurrentBalanceAndIncome() {
     newDate = new Date();
-    if(lastBalLog.getTime()+(1000*60*60*24) < newDate.getTime()) {
+    if(lastBalLog===null || lastBalLog.getTime()+(1000*60*60*24) < newDate.getTime()) {
         // run every 24 hours
         console.log('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
         records.log.push('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
-        lastBalLog=newDate;
+        records.logStyle.push([]);
+
+        lastBalLog = newDate;
     }
 }
 
@@ -253,7 +256,7 @@ function getIncome() {
 }
 
 function getIncomePercent() {
-    return parseInt((getIncome()/(startBal/100)).toFixed(0));
+    return parseFloat((getIncome()/(startBal/100)).toFixed(2)).toFixed(2);
 }
 
 function logWinLoss(result,message) {
@@ -263,21 +266,15 @@ function logWinLoss(result,message) {
             'background: green; color: white;',
             'background: #222; color: #bada55;',
             'background: blue; color: yellow;',
-            'background: blue; color: grey;'
+            'background: grey; color: black;'
         );
-        records.logStyle.push([
-            'background: red; color: white;',
-            'background: #222; color: #bada55;',
-            'background: blue; color: yellow;',
-            'background: blue; color: grey;'
-        ]);
     } else {
         console.log(
             message,
             'background: red; color: white;',
             'background: #222; color: #bada55;',
             'background: blue; color: yellow;',
-            'background: blue; color: grey;'
+            'background: grey; color: black;'
         );
 
     }
@@ -285,21 +282,21 @@ function logWinLoss(result,message) {
     records.logStyle.push([
         (result==='WIN') ? 'background: green; color: white;':'background: red; color: white;',
         'background: #222; color: #bada55;',
-        'background: blue; color: yellow;'
+        'background: blue; color: yellow;',
+        'background: grey; color: black;'
     ]);
 }
 
 
 function mainLoop() {
-    logCurrentBalanceAndIncome();
     switch(actionArr[actionIndex]) {
         case "init":
             console.log('initializing...');
             lastRollResult = ele.lastRollSpan.innerText;
             startBal = getMyBal();
+            logCurrentBalanceAndIncome();
             setBetZero();
             winsBeforeLoss.push(999);
-
             actionArr.push("click bet");
             actionArr.push("wait new result");
             actionIndex++;
@@ -311,6 +308,7 @@ function mainLoop() {
         break;
 
         case "wait new result":
+            logCurrentBalanceAndIncome();
             // do something only if new result is found
             if( lastRollResult != ele.lastRollSpan.innerText ) {
                 restCount = 0;
@@ -340,18 +338,21 @@ function mainLoop() {
                         records.LostAbove4 = records.LostAbove4 + '\n' + consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate();
                         console.log(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
                         records.log.push(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
+                        records.logStyle.push([]);
+
                     }
 
                     switch(setBet) {
                         case 2:
                             message = '%c Lost minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                             logWinLoss('LOSS',message);
-                            //revenge = true;
+                            revenge = true;
                         break;
                         case 3:
                             message = '%c Lost major bet! Oh NOOOOO! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                             logWinLoss('LOSS',message);
                             console.log('');
+                            revenge = true;
                         break;
                     }
 
