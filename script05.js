@@ -22,6 +22,11 @@
  *     I havent verified it yet
  */
 
+model = {
+    lastRoll : null,
+    lastBalance: null
+};
+
 records = {
     rolls: [],
     log: [],
@@ -44,17 +49,17 @@ lastBalLog = null;
 
 restCount = 0;
 dummyx2Clicks = 0;
-baseBetx2Clicks = 12;
-specialBetx2Clicks = 18;
+baseBetx2Clicks = 15;
+specialBetx2Clicks = 19;
 targetConsec = 3;
 
 winsBeforeLoss = [];
 actionArr = [];
 consecLost = 1;
-lastRollResult = null;
 setBet = 0;
 winCount = 0;
 revenge = false;
+waitForNewIncome = false;
 
 function getMyBal() { return parseFloat(ele.myBal.innerText.split(" ")[0]); }
 
@@ -94,6 +99,7 @@ function setBetAmount() {
         ele.x2Btn.click();
     }
     setBet = 2;
+    waitForNewIncome = true;
     //console.log('betting NORMAL');
 }
 
@@ -103,6 +109,7 @@ function setSpecialAmount() {
         ele.x2Btn.click();
     }
     setBet = 3;
+    waitForNewIncome = true;
     //console.log('betting SPECIAL');
 }
 
@@ -241,7 +248,8 @@ function findLongestStreakHitBelow20() {
 
 function logCurrentBalanceAndIncome() {
     newDate = new Date();
-    if(lastBalLog===null || lastBalLog.getTime()+(1000*60*60*24) < newDate.getTime()) {
+    hoursInterval = 2;
+    if(lastBalLog===null || lastBalLog.getTime()+(1000*60*60*hoursInterval) < newDate.getTime()) {
         // run every 24 hours
         console.log('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
         records.log.push('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
@@ -292,13 +300,15 @@ function mainLoop() {
     switch(actionArr[actionIndex]) {
         case "init":
             console.log('initializing...');
-            lastRollResult = ele.lastRollSpan.innerText;
+            model.lastRoll = ele.lastRollSpan.innerText;
             startBal = getMyBal();
+            model.lastBalance = getMyBal();
             logCurrentBalanceAndIncome();
             setBetZero();
             winsBeforeLoss.push(999);
             actionArr.push("click bet");
             actionArr.push("wait new result");
+            actionArr.push("process bet");
             actionIndex++;
         break;
 
@@ -308,84 +318,28 @@ function mainLoop() {
         break;
 
         case "wait new result":
-            logCurrentBalanceAndIncome();
-            // do something only if new result is found
-            if( lastRollResult != ele.lastRollSpan.innerText ) {
-                restCount = 0;
-                lastRollResult = ele.lastRollSpan.innerText;
-                recordRoll(lastRollResult);
-
-                if( hasClass( ele.lastRollContainer, 'is-negative') ) {
-                    // record how many wins before lost
-                    winsBeforeLoss.push(winCount);
-
-                    //console.log('wincount ' + winCount);
-                    if(winCountSameAsPrevious(winCount)) {
-                        consecLost++;
-                        //console.log('%c Consecutive! '+ winCount, 'font-size:16px; background: #222; color: #bada55');
-                    } else {
-                        consecLost = 1;
-                        //console.log('reset consec ' + winCount + ' not equal to ' + winsBeforeLoss[winsBeforeLoss.length-2]);
+            if( model.lastRoll != ele.lastRollSpan.innerText ) {
+                if(waitForNewIncome===true) {
+                    console.log('waiting for new income');
+                    /*  Checks for new income
+                     *  if new income is found
+                     *  wait will run again but
+                     *  it will go to else since
+                     *  we are done waiting for new income */
+                    if(model.lastBalance != getMyBal()) {
+                        waitForNewIncome=false;
                     }
-                    //console.log('Consecutive Lost Count: '+consecLost+ ' @win: ' +winCount);
-
-
-                    if(consecLost>=4) {
-                        if(records['consec'+consecLost+'LostOn'+winCount]===undefined) {
-                            records['consec'+consecLost+'LostOn'+winCount] = [];
-                        }
-                        records['consec'+consecLost+'LostOn'+winCount].push(winsBeforeLoss.length-1);
-                        records.LostAbove4 = records.LostAbove4 + '\n' + consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate();
-                        console.log(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
-                        records.log.push(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
-                        records.logStyle.push([]);
-
-                    }
-
-                    switch(setBet) {
-                        case 2:
-                            message = '%c Lost minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
-                            logWinLoss('LOSS',message);
-                            revenge = true;
-                        break;
-                        case 3:
-                            message = '%c Lost major bet! Oh NOOOOO! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
-                            logWinLoss('LOSS',message);
-                            console.log('');
-                            revenge = true;
-                        break;
-                    }
-
-                    setDummyAmount();
-                    winCount = 0;
                 } else {
-                    winCount++;
-                    switch(setBet) {
-                        case 2:
-                            message = '%c Won minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
-                            logWinLoss('WIN',message);
-                        break;
-                        case 3:
-                            message = '%c Won major bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
-                            logWinLoss('WIN',message);
-                            revenge = false;
-                        break;
-                    }
-
-                    //console.log('win');
-                    // set default bet to dummy
-                    setDummyAmount();
-                    // only set real bet if below condion is true
-                    target = winsBeforeLoss[winsBeforeLoss.length-1];
-                    allConditionForSpecialIsTrue(target);
+                    restCount = 0;
+                    // update lastRoll
+                    model.lastRoll = ele.lastRollSpan.innerText;
+                    recordRoll(model.lastRoll);
+                    // update balance
+                    model.lastBalance = getMyBal();
+                    // log balance on set interval
+                    logCurrentBalanceAndIncome();
+                    actionIndex++;
                 }
-
-                ifTargetReachedEndBetting();
-                if(actionIndex===actionArr.length-1) {
-                    actionArr.push("click bet");
-                    actionArr.push("wait new result");
-                }
-                actionIndex++;
             } else {
                 restCount++;
                 if(restCount===10) {
@@ -393,6 +347,84 @@ function mainLoop() {
                     ele.betBtn.click();
                 }
             }
+        break;
+
+
+        case "process bet":
+            if( hasClass( ele.lastRollContainer, 'is-negative') ) {
+                // I LOST
+                // record how many wins before lost
+                winsBeforeLoss.push(winCount);
+
+                //console.log('wincount ' + winCount);
+                if(winCountSameAsPrevious(winCount)) {
+                    consecLost++;
+                    //console.log('%c Consecutive! '+ winCount, 'font-size:16px; background: #222; color: #bada55');
+                } else {
+                    consecLost = 1;
+                    //console.log('reset consec ' + winCount + ' not equal to ' + winsBeforeLoss[winsBeforeLoss.length-2]);
+                }
+                //console.log('Consecutive Lost Count: '+consecLost+ ' @win: ' +winCount);
+
+
+                if(consecLost>=4) {
+                    if(records['consec'+consecLost+'LostOn'+winCount]===undefined) {
+                        records['consec'+consecLost+'LostOn'+winCount] = [];
+                    }
+                    records['consec'+consecLost+'LostOn'+winCount].push(winsBeforeLoss.length-1);
+                    records.LostAbove4 = records.LostAbove4 + '\n' + consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate();
+                    console.log(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
+                    records.log.push(consecLost + ' loss @ ' + winsBeforeLoss[winsBeforeLoss.length-1] + ' on record '+ (winsBeforeLoss.length-1) + ' - ' + getFormattedDate());
+                    records.logStyle.push([]);
+
+                }
+
+                switch(setBet) {
+                    case 2:
+                        message = '%c Lost minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                        logWinLoss('LOSS',message);
+                        revenge = true;
+                    break;
+                    case 3:
+                        message = '%c Lost major bet! Oh NOOOOO! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                        logWinLoss('LOSS',message);
+                        console.log('');
+                        revenge = true;
+                    break;
+                }
+
+                setDummyAmount();
+                winCount = 0;
+            } else {
+                // I WIN
+                winCount++;
+                switch(setBet) {
+                    case 2:
+                        message = '%c Won minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                        logWinLoss('WIN',message);
+                    break;
+                    case 3:
+                        message = '%c Won major bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
+                        logWinLoss('WIN',message);
+                        revenge = false;
+                    break;
+                }
+
+                //console.log('win');
+                // set default bet to dummy
+                setDummyAmount();
+                // only set real bet if below condion is true
+                target = winsBeforeLoss[winsBeforeLoss.length-1];
+                allConditionForSpecialIsTrue(target);
+            }
+
+            ifTargetReachedEndBetting();
+            if(actionIndex===actionArr.length-1) {
+                actionArr.push("click bet");
+                actionArr.push("wait new result");
+                actionArr.push("process bet");
+            }
+            actionIndex++;
         break;
     }
 }
