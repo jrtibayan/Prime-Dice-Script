@@ -22,10 +22,9 @@
  *     I havent verified it yet
  */
 
-model = {
-    lastRoll : null,
-    lastBalance: null
-};
+
+
+
 
 records = {
     rolls: [],
@@ -44,13 +43,10 @@ ele = {
     myBal: document.querySelector(".index__home__header__balance__btc").children[1]
 };
 
-startBal = 0;
+
 lastBalLog = null;
 
 restCount = 0;
-dummyx2Clicks = 0;
-baseBetx2Clicks = 15;
-specialBetx2Clicks = 19;
 targetConsec = 3;
 
 winsBeforeLoss = [];
@@ -60,6 +56,260 @@ setBet = 0;
 winCount = 0;
 revenge = false;
 waitForNewIncome = false;
+
+
+
+model = {
+    startBalance: 0,
+    dummyx2Clicks: 0,
+    minorx2Clicks: 15,
+    majorx2Clicks: 19,
+    lastRoll : null,
+    lastBalance: null,
+    winBeforeDummy: 2,
+    targetIncomeBeforeStop: 0.001
+};
+
+
+viewResults = {
+    init: function() {
+        console.log('viewResults init start');
+        /* ADD THE STYLING */
+        css = '.report-tab {'
+            +'background: lightgrey;'
+            +'color: black;'
+            +'display: block;'
+            +' position: fixed;'
+            +'top: 0;'
+            +'right: 0;'
+            +'width: 100%;'
+            +'height: 100vh;'
+            +'z-index: 9000000000;'
+            +'-webkit-transition: left 10s;'
+            +'transition: left 10s;'
+        +'} '
+        +'.report-tab.hidden {'
+            +'left: 100vw;'
+        +'} '
+        +'.menu {'
+            +'height: 40px;'
+            +'background: black;'
+        +'} '
+        +'.show-report {'
+            +'background: red;'
+            +'position: absolute;'
+            +'width: 60px;'
+            +'height: 40px;'
+            +'top: calc(50vh - 20px);'
+            +'left: -60px;'
+        +'} '
+        +'.hide-report {'
+            +'background: blue;'
+            +'position: absolute;'
+            +'width: 40px;'
+            +'height: 40px;'
+            +'top: 0;'
+            +'right: 0;'
+        +'} '
+        +'.set-bets {'
+            +'float: left;'
+            +'width: 50%;'
+            +'border: 1px solid #000;'
+        +'} '
+        +'.set-bets p .prop{'
+            +'width: 100px;'
+            +'text-align: right;'
+            +'display: inline-block;'
+            +'padding: 0 5px;'
+        +'} '
+        +'.set-bets p .value{'
+            +'background: #fff;'
+            +'padding: 0 5px;'
+            +'width: calc(100% - 100px);'
+            +'text-align: left;'
+            +'display: inline-block;'
+        +'} '
+
+
+        +'.balance-and-target {'
+            +'float: left;'
+            +'width: 50%;'
+            +'border: 1px solid #000;'
+        +'} '
+        +'.balance-and-target p .prop{'
+            +'width: 100px;'
+            +'text-align: right;'
+            +'display: inline-block;'
+            +'padding: 0 5px;'
+        +'} '
+        +'.balance-and-target p .value{'
+            +'background: #fff;'
+            +'padding: 0 5px;'
+            +'width: calc(100% - 100px);'
+            +'text-align: left;'
+            +'display: inline-block;'
+        +'} '
+
+
+        +'.wins-before-lost{'
+            +'float: right;'
+            +'width: 25%;'
+            +'border: 1px solid #000;'
+        +'} '
+
+        ,
+        head = document.head || document.getElementsByTagName('head')[0], style = document.createElement('style');
+        style.type = 'text/css';
+
+        if (style.styleSheet){
+          style.styleSheet.cssText = css;
+        } else {
+          style.appendChild(document.createTextNode(css));
+        }
+        head.appendChild(style);
+        /* END ADD THE STYLING */
+
+
+        theParent = document.body;
+        theKid = document.createElement("div");
+        theKid.className = "report-tab";
+        //theKid.innerHTML = 'Are we there yet?';
+        // append theKid to the end of theParent
+        theParent.appendChild(theKid);
+
+        document.querySelector('.report-tab').innerHTML += '<div class="menu"></div>';
+        document.querySelector('.menu').innerHTML += '<div class="show-report">S</div>';
+        document.querySelector('.menu').innerHTML += '<div class="hide-report">H</div>';
+
+        viewSetBets.init();
+        viewWinsBeforeLost.init();
+        viewBalanceAndTarget.init();
+
+        /****** LISTEN FOR CLICKS ******/
+
+        var btnShowReport = document.querySelector('.show-report');
+        btnShowReport.addEventListener('click', function() {
+            document.querySelector('.report-tab').classList.remove("hidden");
+        });
+
+        var btnHideReport = document.querySelector('.hide-report');
+        btnHideReport.addEventListener('click', function() {
+            document.querySelector('.report-tab').classList.add("hidden");
+        });
+    }
+};
+
+viewBalanceAndTarget = {
+    init: function() {
+        document.querySelector('.report-tab').innerHTML += '<div class="balance-and-target"></div>';
+
+        document.querySelector('.balance-and-target').innerHTML += '<p class="current-balance"><span class="prop">C.Balance: </span><span class="value">0</span></p><hr>';
+
+        document.querySelector('.balance-and-target').innerHTML += '<p class="target-income"><span class="prop">T.Income: </span><span class="value">0</span></p>';
+        document.querySelector('.balance-and-target').innerHTML += '<p class="current-income"><span class="prop">C.Income: </span><span class="value">0</span></p>';
+        document.querySelector('.balance-and-target').innerHTML += '<p class="diff-income"><span class="prop">Diff: </span><span class="value">0</span></p>';
+        viewBalanceAndTarget.render();
+
+    },
+    render: function() {
+        document.querySelector('.current-balance .value').innerHTML = vm.getCurrentBalance().toFixed(8);
+        document.querySelector('.target-income .value').innerHTML = model.targetIncomeBeforeStop.toFixed(8);
+        document.querySelector('.current-income .value').innerHTML = vm.getCurrentIncome().toFixed(8);
+        document.querySelector('.diff-income .value').innerHTML = (model.targetIncomeBeforeStop.toFixed(8)-vm.getCurrentIncome()).toFixed(8);
+    }
+};
+
+viewWinsBeforeLost = {
+    init: function() {
+        document.querySelector('.report-tab').innerHTML += '<div class="wins-before-lost"><h4>W b4 L</h4></div>';
+        viewWinsBeforeLost.render();
+    },
+    render: function() {
+        list = [];
+        for(a=winsBeforeLoss.length-1;a>winsBeforeLoss.length-11;a--) {
+            list.push('<p>'+winsBeforeLoss[a]+'</p>');
+        }
+        document.querySelector('.wins-before-lost').innerHTML = list.join('');
+    }
+};
+
+viewSetBets = {
+    init: function() {
+        document.querySelector('.report-tab').innerHTML += '<div class="set-bets"></div>';
+        document.querySelector('.set-bets').innerHTML += '<p class="dummy"><span class="prop">Dummy: </span><span class="value">0</span></p>';
+        document.querySelector('.set-bets').innerHTML += '<p class="minor"><span class="prop">Minor: </span><span class="value">0</span></p>';
+        document.querySelector('.set-bets').innerHTML += '<p class="major"><span class="prop">Major: </span><span class="value">0</span></p>';
+        viewSetBets.render();
+    },
+    render: function() {
+        document.querySelector('.dummy .value').innerHTML = vm.getDummyBetAmount().toFixed(8);
+        document.querySelector('.minor .value').innerHTML = vm.getMinorBetAmount().toFixed(8);
+        document.querySelector('.major .value').innerHTML = vm.getMajorBetAmount().toFixed(8);
+    }
+};
+
+vm = {
+    init: function() {
+
+        // no more need to append
+        // looks like PrimeDice already using JQuery
+        // vm.appendJQuery();
+        viewResults.init();
+    },
+    appendJQuery: function() {
+        console.log('start appendJquery');
+        /* inject javascript */
+        var jq = document.createElement('script');
+        jq.src = "https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js";
+        //document.getElementsByTagName('head')[0].appendChild(jq);
+        document.getElementsByTagName('head').insertBefore(jq,document.getElementsByTagName('head').childNodes[0]);
+        // ... give time for script to load, then type (or see below for non wait option)
+        window.setTimeout(function (){ jQuery.noConflict(); }, 5000);
+        /* end - inject javascript */
+        console.log('end appendJquery');
+    },
+    getDummyBetAmount: function() {
+        return vm.calculateBetClicks(model.dummyx2Clicks);
+    },
+    getMinorBetAmount: function() {
+        return vm.calculateBetClicks(model.minorx2Clicks);
+    },
+    getMajorBetAmount: function() {
+        return vm.calculateBetClicks(model.majorx2Clicks);
+    },
+    calculateBetClicks: function(clicks) {
+        if(clicks===0) return 0;
+
+        betAmount = 0.00000001;
+        for(a=1;a<clicks;a++) {
+            betAmount*=2;
+        }
+        return betAmount;
+    },
+    setNewDummyAmout: function(clicks) {
+        model.dummyx2Clicks = clicks;
+        console.log('Changed Minor Bet Amount To: ' + vm.getDummyBetAmount());
+        viewSetBets.render();
+    },
+    setNewMinorAmout: function(clicks) {
+        model.minorx2Clicks = clicks;
+        console.log('Changed Minor Bet Amount To: ' + vm.getMinorBetAmount());
+        viewSetBets.render();
+    },
+    setNewMajorAmout: function(clicks) {
+        model.majorx2Clicks = clicks;
+        console.log('Changed Major Bet Amount To: ' + vm.getMajorBetAmount());
+        viewSetBets.render();
+    },
+    getCurrentBalance: function() {
+        return parseFloat(ele.myBal.innerText.split(" ")[0]);
+    },
+    getCurrentIncome: function() {
+        return parseFloat((getMyBal()-model.startBalance).toFixed(8));
+    }
+};
+
+vm.init();
 
 function getMyBal() { return parseFloat(ele.myBal.innerText.split(" ")[0]); }
 
@@ -87,7 +337,7 @@ function setBetZero() {
 
 function setDummyAmount() {
     setBetZero();
-    for(a=0;a<dummyx2Clicks;a++) {
+    for(a=0;a<model.dummyx2Clicks;a++) {
         ele.x2Btn.click();
     }
     setBet = 1;
@@ -95,7 +345,7 @@ function setDummyAmount() {
 
 function setBetAmount() {
     setBetZero();
-    for(a=0;a<baseBetx2Clicks;a++) {
+    for(a=0;a<model.minorx2Clicks;a++) {
         ele.x2Btn.click();
     }
     setBet = 2;
@@ -105,7 +355,7 @@ function setBetAmount() {
 
 function setSpecialAmount() {
     setBetZero();
-    for(a=0;a<specialBetx2Clicks;a++) {
+    for(a=0;a<model.majorx2Clicks;a++) {
         ele.x2Btn.click();
     }
     setBet = 3;
@@ -251,20 +501,16 @@ function logCurrentBalanceAndIncome() {
     hoursInterval = 2;
     if(lastBalLog===null || lastBalLog.getTime()+(1000*60*60*hoursInterval) < newDate.getTime()) {
         // run every 24 hours
-        console.log('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
-        records.log.push('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+getIncome()+' Percent: '+getIncomePercent());
+        console.log('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+vm.getCurrentIncome()+' Percent: '+getIncomePercent());
+        records.log.push('Balance '+getMyBal().toFixed(8)+' Date: '+getFormattedDate()+' Income: '+vm.getCurrentIncome()+' Percent: '+getIncomePercent());
         records.logStyle.push([]);
 
         lastBalLog = newDate;
     }
 }
 
-function getIncome() {
-    return parseFloat((getMyBal()-startBal).toFixed(8));
-}
-
 function getIncomePercent() {
-    return parseFloat((getIncome()/(startBal/100)).toFixed(2)).toFixed(2);
+    return parseFloat((vm.getCurrentIncome()/(model.startBalance/100)).toFixed(2)).toFixed(2);
 }
 
 function logWinLoss(result,message) {
@@ -301,11 +547,14 @@ function mainLoop() {
         case "init":
             console.log('initializing...');
             model.lastRoll = ele.lastRollSpan.innerText;
-            startBal = getMyBal();
+            model.startBalance = getMyBal();
             model.lastBalance = getMyBal();
             logCurrentBalanceAndIncome();
             setBetZero();
+
             winsBeforeLoss.push(999);
+            viewWinsBeforeLost.render();
+
             actionArr.push("click bet");
             actionArr.push("wait new result");
             actionArr.push("process bet");
@@ -355,6 +604,7 @@ function mainLoop() {
                 // I LOST
                 // record how many wins before lost
                 winsBeforeLoss.push(winCount);
+                viewWinsBeforeLost.render();
 
                 //console.log('wincount ' + winCount);
                 if(winCountSameAsPrevious(winCount)) {
@@ -398,12 +648,20 @@ function mainLoop() {
             } else {
                 // I WIN
                 winCount++;
+
                 switch(setBet) {
                     case 2:
                         message = '%c Won minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                         logWinLoss('WIN',message);
                     break;
                     case 3:
+                        if(model.winBeforeDummy>0) {
+                            model.winBeforeDummy--;
+                        } else {
+                            model.minorx2Clicks = 13;
+                            model.majorx2Clicks = 17;
+                        }
+
                         message = '%c Won major bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                         logWinLoss('WIN',message);
                         revenge = false;
