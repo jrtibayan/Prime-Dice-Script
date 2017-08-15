@@ -208,8 +208,6 @@ viewBalanceAndTarget = {
         document.querySelector('.balance-and-target').innerHTML += '<p class="target-income"><span class="prop">T.Income: </span><span class="value">0</span></p>';
         document.querySelector('.balance-and-target').innerHTML += '<p class="current-income"><span class="prop">C.Income: </span><span class="value">0</span></p>';
         document.querySelector('.balance-and-target').innerHTML += '<p class="diff-income"><span class="prop">Diff: </span><span class="value">0</span></p>';
-        viewBalanceAndTarget.render();
-
     },
     render: function() {
         document.querySelector('.current-balance .value').innerHTML = vm.getCurrentBalance().toFixed(8);
@@ -549,6 +547,7 @@ function mainLoop() {
             model.lastRoll = ele.lastRollSpan.innerText;
             model.startBalance = getMyBal();
             model.lastBalance = getMyBal();
+            viewBalanceAndTarget.render();
             logCurrentBalanceAndIncome();
             setBetZero();
 
@@ -634,12 +633,14 @@ function mainLoop() {
                         message = '%c Lost minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                         logWinLoss('LOSS',message);
                         revenge = true;
+                        viewBalanceAndTarget.render();
                     break;
                     case 3:
                         message = '%c Lost major bet! Oh NOOOOO! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                         logWinLoss('LOSS',message);
                         console.log('');
                         revenge = true;
+                        viewBalanceAndTarget.render();
                     break;
                 }
 
@@ -653,6 +654,7 @@ function mainLoop() {
                     case 2:
                         message = '%c Won minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                         logWinLoss('WIN',message);
+                        viewBalanceAndTarget.render();
                     break;
                     case 3:
                         if(model.winBeforeDummy>0) {
@@ -665,6 +667,7 @@ function mainLoop() {
                         message = '%c Won major bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                         logWinLoss('WIN',message);
                         revenge = false;
+                        viewBalanceAndTarget.render();
                     break;
                 }
 
