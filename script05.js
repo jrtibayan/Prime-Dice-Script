@@ -63,7 +63,7 @@ model = {
     startBalance: 0,
     dummyx2Clicks: 0,
     minorx2Clicks: 15,
-    majorx2Clicks: 19,
+    majorx2Clicks: 22,
     lastRoll : null,
     lastBalance: null,
     winBeforeDummy: 2,
@@ -243,6 +243,9 @@ viewSetBets = {
         document.querySelector('.dummy .value').innerHTML = vm.getDummyBetAmount().toFixed(8);
         document.querySelector('.minor .value').innerHTML = vm.getMinorBetAmount().toFixed(8);
         document.querySelector('.major .value').innerHTML = vm.getMajorBetAmount().toFixed(8);
+        if(parseFloat(document.querySelector('.major .value').innerHTML) > vm.getCurrentBalance()) {
+            document.querySelector('.major .value').innerHTML = vm.getCurrentBalance().toFixed(8);
+        }
     }
 };
 
@@ -634,6 +637,7 @@ function mainLoop() {
                         logWinLoss('LOSS',message);
                         revenge = true;
                         viewBalanceAndTarget.render();
+                        viewSetBets.render();
                     break;
                     case 3:
                         message = '%c Lost major bet! Oh NOOOOO! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
@@ -641,6 +645,7 @@ function mainLoop() {
                         console.log('');
                         revenge = true;
                         viewBalanceAndTarget.render();
+                        viewSetBets.render();
                     break;
                 }
 
@@ -655,6 +660,7 @@ function mainLoop() {
                         message = '%c Won minor bet! %c Record is on '+(winsBeforeLoss.length-1)+' %c '+getFormattedDate()+' %c '+getIncomePercent()+'% ';
                         logWinLoss('WIN',message);
                         viewBalanceAndTarget.render();
+                        viewSetBets.render();
                     break;
                     case 3:
                         if(model.winBeforeDummy>0) {
@@ -668,6 +674,7 @@ function mainLoop() {
                         logWinLoss('WIN',message);
                         revenge = false;
                         viewBalanceAndTarget.render();
+                        viewSetBets.render();
                     break;
                 }
 
