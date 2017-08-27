@@ -36,8 +36,11 @@ stat = {
     rounds: {}
 };
 
+rolls = [];
+
 startBal = 0;
-targetIncome = 0.00020000;
+betx2Clicks = 5;
+targetIncome = 0.00001000;
 targetBal = 0;
 waitForWin = 21;
 
@@ -54,7 +57,7 @@ function getBetInput() { return parseFloat(ele.betInput.value).toFixed(8); }
 function getCurrentDirection() { return ele.directionSpan.innerText; }
 
 function recordStartBal() { startBal = parseFloat(getMyBal()); }
-function recordTargetBal() { targetBal = targetIncome + startBal; }
+function recordTargetBal() { targetBal = startBal + (startBal*0.05); }
 function recordLowestBalIfItIsLowest() { if( stat.lowestBal > parseFloat(getMyBal()) ) { stat.lowestBal = parseFloat(getMyBal()); } }
 
 function hasClass(element, cls) { return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1; }
@@ -75,7 +78,7 @@ function setDummyBet() {
     while(ele.betInput.value!=0) {
         ele.halfBtn.click();
     }
-    for(a=0;a<1;a++) {
+    for(a=0;a<0;a++) {
         ele.x2Btn.click();
     }
     console.log('Dummy Bet Set to ' + ele.betInput.value + ' till WIN');
@@ -86,7 +89,7 @@ function setRealBet() {
     while(ele.betInput.value!=0) {
         ele.halfBtn.click();
     }
-    for(a=0;a<5;a++) {
+    for(a=0;a<betx2Clicks;a++) {
         ele.x2Btn.click();
     }
     console.log('Real Bet Set to ' + ele.betInput.value + ' till ' + waitForWin + ' LOSS');
@@ -96,12 +99,11 @@ function finish() {
     console.log("Stopping.. Reached target balance");
     console.log("Started with " + parseFloat(startBal).toFixed(8));
     console.log("Current Bal  " + getMyBal());
-    ele.betBtn.click();
-    actionIndex+= 1000;
+    stop();
 }
 
 function targetIsReached() {
-    if( parseFloat(getMyBal()) > targetBal) {
+    if( parseFloat(getMyBal()) >= targetBal) {
         console.log('Target is Reached Please STOP');
         return true;
     }
@@ -240,6 +242,7 @@ function mainLoop() {
             if( newRollFound() ) {
                 //console.log('new roll found ' + ele.lastRollSpan.innerText);
                 lastRollResult = ele.lastRollSpan.innerText;
+                rolls.push(parseFloat(lastRollResult));
 
                 //check how many rolls before hit < 9.90
                 recordHitsOnLess990();
@@ -298,7 +301,14 @@ function mainLoop() {
     }
 }
 
+
+function stop() {
+    clearTimeout(timer);
+};
+
+function start() {  // use a one-off timer
+    timer = setInterval(mainLoop, 100);
+};
+
 actionArr.push('init');
 actionIndex = 0;
-
-myInterval = setInterval(mainLoop, 100);
