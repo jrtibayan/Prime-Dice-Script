@@ -22,7 +22,25 @@
  *     I havent verified it yet
  */
 
-
+/*
+        Tested
+            minor on 2,2,* if lost major on 2,2,2,*
+                - it is possible to loose on major bet
+                - i can try to make the major bet minor and extend major to 2,2,2,2,*
+                    but that will have too few to no opportunity to actually win something
+            minor on 2,2,* if lost major on next 2,2,*
+                - it is also possible to loose on major bet
+                (
+                    - I am willing to try again to see if I will loose again before doubling my balance
+                    but I think its better to find a new strategy
+                )
+        Conclusion
+            I lost major bet 1 time
+                this may still be profitable but its too long to test
+                since there is only very small income in 30days
+                and only no chance of recovering a major loss
+                since youd need to x10 of it to recover the loss
+ */
 
 
 
