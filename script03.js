@@ -13,6 +13,14 @@
  *         getMyBal() sometimes get the not updated value after win
  *             maybe because after win it records too fast and
  *                 didnt wait for bal to be updated before getting it
+ *     Testing
+ *         I will be testing this for 20 days
+ *         If all goes well I'll use it with my current balance
+ *         Starting Balance: 20,000
+ *         Target Income: 5%
+ *         Bet: 16
+ *         001 8/27/2017 start 20,000 bet 16 OKAY
+ *         001 8/28/2017 start 20,000 bet 16 OKAY <NO LOSS>
  *
  */
 
@@ -57,7 +65,7 @@ function getBetInput() { return parseFloat(ele.betInput.value).toFixed(8); }
 function getCurrentDirection() { return ele.directionSpan.innerText; }
 
 function recordStartBal() { startBal = parseFloat(getMyBal()); }
-function recordTargetBal() { targetBal = startBal + (startBal*0.05); }
+function recordTargetBal() { targetBal = startBal + targetIncome; }
 function recordLowestBalIfItIsLowest() { if( stat.lowestBal > parseFloat(getMyBal()) ) { stat.lowestBal = parseFloat(getMyBal()); } }
 
 function hasClass(element, cls) { return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1; }
