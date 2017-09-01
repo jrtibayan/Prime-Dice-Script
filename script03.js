@@ -19,8 +19,12 @@
  *         Starting Balance: 20,000
  *         Target Income: 5%
  *         Bet: 16
- *         001 8/27/2017 start 20,000 bet 16 OKAY
- *         001 8/28/2017 start 20,000 bet 16 OKAY <NO LOSS>
+ *         001 08/27/2017 start 20,000 bet 16 OKAY
+ *         002 08/28/2017 start 20,000 bet 16 OKAY <NO LOSS>
+ *         003 08/29/2017 start 20,000 bet 16 OKAY <NO LOSS>
+ *         004 08/30/2017 start 20,000 bet 16 OKAY <-4,000 but still got up and won>
+ *         005 08/31/2017 start 20,000 bet 16 OKAY <NO LOSS>
+ *         006 09/02/2017 start 4,400,000 lowest 4,164,959 which is (4,096x57) bet 4,096 OKAY <2 LOSS> recovered after 17 consecutive wins after the 2nd loss
  *
  */
 
@@ -47,8 +51,9 @@ stat = {
 rolls = [];
 
 startBal = 0;
-betx2Clicks = 5;
-targetIncome = 0.00001000;
+betx2Clicks = 13; //5
+
+targetIncome = 0.00240000;
 targetBal = 0;
 waitForWin = 21;
 
