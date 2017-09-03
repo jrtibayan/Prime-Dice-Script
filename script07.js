@@ -1,5 +1,3 @@
-/*              PRIMEDICE HELPER              */
-
 ele = {
     betBtn: document.querySelector(".index__home__dice__wrap__cta.btn"),
     halfBtn: document.querySelector(".dice__control__content").children[1],
