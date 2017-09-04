@@ -25,7 +25,8 @@
  *         004 08/30/2017 start 20,000 bet 16 OKAY <-4,000 but still got up and won>
  *         005 08/31/2017 start 20,000 bet 16 OKAY <NO LOSS>
  *         006 09/02/2017 start 4,400,000 lowest 4,164,959 which is (4,096x57) bet 4,096 OKAY <2 LOSS> recovered after 17 consecutive wins after the 2nd loss
- *         007 09/03/2017 start 4,000,000 lowest 2,664,413 which is (4,096x651) bet 4,096 OKAY <SO MANY LOSS I LOST COUNT> recovered after 4hours 9AM - 1PM
+ *         007 09/03/2017 start 4,000,000 lowest 2,664,413 which is (4,096x327) bet 4,096 OKAY <SO MANY LOSS I LOST COUNT> recovered after 4hours 9AM - 1PM
+ *         008 09/04/2017 start 4,000,000 OKAY <2 LOSS>
  *
  *      Testing Summary
  *          From 4,000,000 Balance
