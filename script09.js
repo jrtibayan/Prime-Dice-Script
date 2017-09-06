@@ -21,13 +21,18 @@ model = {
     actionArr: [],
     actionIndex: null,
     lastRollResult: null,
+    currentConsecLoss: null,
+    betting: false,
+
+
 
     settings: {
         betClicks: {
             base: 5,
             dummy: 1
         },
-        targetIncome: 0
+        targetIncome: 0,
+        zigZagCountBeforeBet: 3
     },
 
     stats: {
@@ -77,6 +82,32 @@ mv = {
 
     recordRoll: function () {
         model.stats.rolls.push( parseFloat(ele.lastRollSpan.innerText) );
+    },
+
+    lastRollsZigZag: function() {
+        okay = true;
+        endIndex = model.stat.rolls.length-1; // 4
+        startIndex = endIndex-zigZagCountBeforeBet-1; // 2
+        indexBeforeZigZag = startIndex-1; // 1
+
+        if( mv.checkDirection(model.stat.rolls[indexBeforeZigZag])!==mv.checkDirection(model.stat.rolls[startIndex]) ) {
+            return false;
+        }
+
+        lastDirection = mv.checkDirection(model.stat.rolls[startIndex]);
+        for(a=startIndex+1;a<=endIndex;a++) {
+            if(lastDirection === mv.checkDirection(model.stat.rolls[a])) {
+                return false;
+            }
+            else {
+                lastDirection = mv.checkDirection(model.stat.rolls[a]);
+            }
+        }
+        return true;
+    },
+
+    setBetting: function ( bo ) {
+        model.betting = bo;
     },
 
     delay: function(n) {
@@ -134,11 +165,22 @@ function mainLoop() {
                 mv.recordRoll();
 
 
-                if(model.actionIndex+1===model.actionArr.length) {
-                    lastRollIndex = model.stats.rolls.length-1;
-                    if( lastRollsZigZagOver() || lastRollsZigZagUnder() ) {
+                if( mv.iWin() ) {
+                    mv.setBetting(false);
+                } else {
+                    // increase current bet with 1 click
+                }
 
-                    } else {
+                if( mv.lastRollsZigZag() ) {
+                    mv.setBetting(true);
+                }
+
+                if(model.actionIndex+1===model.actionArr.length) {
+                    if( model.betting ) {
+                        // set bet amount
+                        // set direction
+                    }
+                    else {
                         model.actionArr.push('set dummy bet');
                     }
                     model.actionArr.push('click bet');
