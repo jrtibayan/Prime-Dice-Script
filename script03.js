@@ -29,12 +29,16 @@
  *         008 09/04/2017 start 4,000,000 OKAY <2 LOSS>
  *         009 09/05/2017 start 4,000,000 OKAY
  *         010 09/06/2017 start 4,000,000 OKAY <7 Consecutive WIN No LOSS>
+ *         011 09/07/2017 start 4,000,000 lowest 2,804,781 OKAY 9AM - 2PM
  *
  *      Testing Summary
  *          From 4,000,000 Balance
  *          Lowest Balance: 2,664,413
  *          Which is about 10-11 on 21 loss
- *          Balance
+ *          Min Balance Required:
+ *          Longest Losing Streak:
+ *          Longest Run Time: 5 hours
+ *          Last Server Seed: 4d96e587cf8b5a2538c1b603ebdcda5e208c7d63be0bf91344995c11c639a6fe
  *
  */
 
