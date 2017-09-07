@@ -8,13 +8,9 @@ ele = {
     lastRollContainer: document.querySelector(".index__home__indicator__inner__number__roll"),
     lastRollSpan: document.querySelector(".index__home__indicator__inner__number__roll").children[1],
     directionSpan: document.querySelector(".index__home__dice__card__bet-ui").children[1].children[1].children[0].children[0].children[0].children[1].children[0],
-    myBal: document.querySelector(".index__home__header__balance__btc").children[1]
+    myBal: document.querySelector(".index__home__header__balance__btc").children[1],
+    getLastRollResult: document.querySelector(".index__game-stats__table").children[1].children[1].children[0]
 };
-
-records = {
-    rolls: []
-};
-
 
 
 model = {
@@ -29,7 +25,8 @@ model = {
     settings: {
         betClicks: {
             base: 5,
-            dummy: 1
+            dummy: 1,
+            current: null
         },
         targetIncome: 0,
         zigZagCountBeforeBet: 3
@@ -50,6 +47,15 @@ mv = {
             ele.directionSpan.click();
         }
     },
+
+    setSameDirection: function() {
+        lastDirection = mv.checkDirection(model.stats.rolls[model.stats.rolls.length-1]);
+        if(ele.directionSpan.innerText !== lastDirection) {
+            ele.directionSpan.click();
+        }
+        console.log('last is: '+lastDirection+'\nbetting: ele.directionSpan.innerText');
+    },
+
     setAmountZero: function () {
         for(a=0;a<100;a++) {
             ele.halfBtn.click();
@@ -62,9 +68,9 @@ mv = {
             ele.x2Btn.click();
         }
     },
-    setBaseAmount: function () {
+    setBetAmount: function () {
         mv.setAmountZero();
-        for(a=0;a<model.settings.betClicks.base;a++) {
+        for(a=0;a<model.settings.betClicks.current;a++) {
             ele.x2Btn.click();
         }
     },
@@ -86,21 +92,23 @@ mv = {
 
     lastRollsZigZag: function() {
         okay = true;
-        endIndex = model.stat.rolls.length-1; // 4
-        startIndex = endIndex-zigZagCountBeforeBet-1; // 2
+        endIndex = model.stats.rolls.length-1; // 4
+        //console.log('End: '+model.stats.rolls[endIndex]+ ' ' +endIndex);
+        startIndex = endIndex-model.settings.zigZagCountBeforeBet; // 2
+        //console.log('Start: '+model.stats.rolls[startIndex]+ ' ' + startIndex);
         indexBeforeZigZag = startIndex-1; // 1
 
-        if( mv.checkDirection(model.stat.rolls[indexBeforeZigZag])!==mv.checkDirection(model.stat.rolls[startIndex]) ) {
+        if( mv.checkDirection(model.stats.rolls[indexBeforeZigZag] )!==mv.checkDirection(model.stats.rolls[startIndex]) ) {
             return false;
         }
 
-        lastDirection = mv.checkDirection(model.stat.rolls[startIndex]);
+        lastDirection = mv.checkDirection(model.stats.rolls[startIndex]);
         for(a=startIndex+1;a<=endIndex;a++) {
-            if(lastDirection === mv.checkDirection(model.stat.rolls[a])) {
+            if(lastDirection === mv.checkDirection(model.stats.rolls[a])) {
                 return false;
             }
             else {
-                lastDirection = mv.checkDirection(model.stat.rolls[a]);
+                lastDirection = mv.checkDirection(model.stats.rolls[a]);
             }
         }
         return true;
@@ -110,10 +118,48 @@ mv = {
         model.betting = bo;
     },
 
+    getLastRollIncome: function() {
+        return parseFloat(ele.lastRollIncome.innerText);
+    },
+
+    getLastRollResult: function() {
+
+        result = {};
+        result.income = parseFloat(ele.lastRollResult.children[7].innerText);
+        if(result.income)
+        result.winLoss = (result.income>0)
+        return parseFloat(ele.lastRollIncome.innerText);
+    },
+
+    checkDirection: function( roll ) {
+        if( roll < 49.50 )
+            return 'ROLL UNDER';
+        else if(roll > 50.49)
+            return 'ROLL OVER';
+        else
+            return 'MISS';
+    },
+
+    betClickCurrentReset: function() {
+        model.settings.betClicks.current = model.settings.betClicks.base;
+    },
+
+    betClickCurrentIncrease: function() {
+        model.settings.betClicks.current++;
+    },
+
     delay: function(n) {
         for(a=0;a<n;a++) {
             model.actionArr.push('delay');
         }
+    },
+
+    hasClass: function(element, cls) {
+        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+    },
+
+    iWin: function() {
+        return (!mv.hasClass(ele.lastRollContainer, 'is-negative'));
     },
 
     getRandomInt: function (min, max) {
@@ -124,6 +170,7 @@ mv = {
 
 
 function mainLoop() {
+    console.log(model.actionArr[model.actionIndex]);
     switch(model.actionArr[model.actionIndex]) {
         case 'init':
             console.log('initializing script...');
@@ -142,9 +189,15 @@ function mainLoop() {
             mv.increaseActionIndex(); // move to next action
         break;
 
+        case 'set real bet':
+            mv.setBetAmount();
+            mv.setSameDirection();
+
+            mv.increaseActionIndex(); // move to next action
+        break;
+
         case 'set dummy bet':
             mv.setDummyAmount(); // set dummy amount
-
             mv.setRandomDirection(); // set random direction
 
             mv.increaseActionIndex(); // move to next action
@@ -164,21 +217,22 @@ function mainLoop() {
                 mv.updateLastRollResult();
                 mv.recordRoll();
 
-
-                if( mv.iWin() ) {
-                    mv.setBetting(false);
+                if( model.betting ) {
+                    if( mv.iWin() ) {
+                        mv.setBetting(false);
+                    } else {
+                        mv.betClickCurrentIncrease();
+                    }
                 } else {
-                    // increase current bet with 1 click
-                }
-
-                if( mv.lastRollsZigZag() ) {
-                    mv.setBetting(true);
+                    if( mv.lastRollsZigZag() ) {
+                        mv.betClickCurrentReset();
+                        mv.setBetting(true);
+                    }
                 }
 
                 if(model.actionIndex+1===model.actionArr.length) {
                     if( model.betting ) {
-                        // set bet amount
-                        // set direction
+                        model.actionArr.push('set real bet');
                     }
                     else {
                         model.actionArr.push('set dummy bet');
