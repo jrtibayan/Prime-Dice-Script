@@ -97,6 +97,19 @@ mv = {
         startIndex = endIndex-model.settings.zigZagCountBeforeBet; // 2
         //console.log('Start: '+model.stats.rolls[startIndex]+ ' ' + startIndex);
         indexBeforeZigZag = startIndex-1; // 1
+        indexBeforeZigZag2 = startIndex-2; // 1
+
+        if( mv.checkDirection(model.stats.rolls[indexBeforeZigZag] )==='MISS' ) {
+            return false;
+        }
+
+        if( mv.checkDirection(model.stats.rolls[indexBeforeZigZag2] )==='MISS' ) {
+            return false;
+        }
+
+        if( mv.checkDirection(model.stats.rolls[indexBeforeZigZag])===mv.checkDirection(model.stats.rolls[indexBeforeZigZag2]) ) {
+            return false;
+        }
 
         if( mv.checkDirection(model.stats.rolls[indexBeforeZigZag] )!==mv.checkDirection(model.stats.rolls[startIndex]) ) {
             return false;
@@ -104,6 +117,11 @@ mv = {
 
         lastDirection = mv.checkDirection(model.stats.rolls[startIndex]);
         for(a=startIndex+1;a<=endIndex;a++) {
+
+            if(mv.checkDirection(model.stats.rolls[a])==='MISS') {
+                return false;
+            }
+
             if(lastDirection === mv.checkDirection(model.stats.rolls[a])) {
                 return false;
             }
