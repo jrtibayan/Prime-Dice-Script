@@ -178,6 +178,7 @@ function mainLoop() {
             console.log('On Loss: Double Bet Amount');
             console.log('On Win : Back to Base Amount');
 
+            mv.betClickCurrentReset();
             mv.updateLastRollResult();
 
             for(a=0;a<3;a++) {
@@ -219,13 +220,13 @@ function mainLoop() {
 
                 if( model.betting ) {
                     if( mv.iWin() ) {
+                        mv.betClickCurrentReset();
                         mv.setBetting(false);
                     } else {
                         mv.betClickCurrentIncrease();
                     }
                 } else {
                     if( mv.lastRollsZigZag() ) {
-                        mv.betClickCurrentReset();
                         mv.setBetting(true);
                     }
                 }
