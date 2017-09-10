@@ -30,6 +30,8 @@
  *         009 09/05/2017 start 4,000,000 OKAY
  *         010 09/06/2017 start 4,000,000 OKAY <7 Consecutive WIN No LOSS>
  *         011 09/07/2017 start 4,000,000 lowest 2,804,781 OKAY 9AM - 2PM
+ *         012 09/08/2017 start 4,000,000 lowest 2,405,747 8:30AM - BUST <MAYBE BECAUSE OF ERRORS or BUG that bets base during dummy bets>
+ *         013 09/10/2017 start 20,000 bet 16 OKAY <9 WIN NO LOSS>
  *
  *      Testing Summary
  *          From 4,000,000 Balance
@@ -65,9 +67,9 @@ stat = {
 rolls = [];
 
 startBal = 0;
-betx2Clicks = 13; //5
+betx2Clicks = 5; //5 //13
 
-targetIncome = 0.00240000;
+targetIncome = 0.00001000; // 1k // 240k
 targetBal = 0;
 waitForWin = 21;
 
