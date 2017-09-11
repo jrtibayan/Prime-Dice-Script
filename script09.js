@@ -4,6 +4,10 @@
 
     test:
     9/10/2017 bet:256 balance: 30,000 -> 46,736 highestOpposite: 8 highestSame: 4
+    9/11/2017 bet:4096 balance: 1,000,000 -> 1,240,000
+
+    todo:
+        record more stat to help decide on bet amount, balance and lStreakLimit
 
 
  */
@@ -30,7 +34,7 @@ model = {
 
     settings: {
         betClicks: {
-            base: 5,
+            base: 13,
             dummy: 0,
             current: null
         },
