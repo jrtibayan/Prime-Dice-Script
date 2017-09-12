@@ -4,10 +4,25 @@
 
     test:
     9/10/2017 bet:256 balance: 30,000 -> 46,736 highestOpposite: 8 highestSame: 4
-    9/11/2017 bet:4096 balance: 1,000,000 -> 1,240,000
+    9/11/2017 bet:4096 balance: 1,000,000 -> 1,965,000 -> 96%
+    9/12/2017 lost 1,000,000 using Same Pattern bet set to 4,000
+
+    Same:
+        HighestOppo: 10
+        HighestSame: 8
+    ZigZag
+        HighestOppo: 8
+        HighestSame: 1
 
     todo:
         record more stat to help decide on bet amount, balance and lStreakLimit
+        add settings to set increase on loss to true or false
+
+    idea:
+        make lower bets
+        then on
+        add another variable originalBaseClick
+            increase baseClick whever
 
 
  */
@@ -455,6 +470,13 @@ function mainLoop() {
                     model.actionArr.push('click bet');
                     model.actionArr.push('wait new result');
                 }
+
+                if(model.actionArr.length>100) {
+                    for(a=0;a<10;a++)
+                        model.actionArr.shift();
+                    model.actionIndex-=10;
+                }
+
                 mv.increaseActionIndex();
             }
         break;
