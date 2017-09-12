@@ -49,12 +49,14 @@ model = {
 
     settings: {
         betClicks: {
-            base: 13,
+            base: 5,
             dummy: 0,
             current: null
         },
         inreaseOnLoss: true,
         patternZigZag: true,
+        alternateDirection: true,
+        alternateDirectionCounter: 0,
         targetIncome: 0,
         zigZagCountBeforeBet: 3
     },
@@ -383,7 +385,6 @@ mv = {
 };
 
 
-
 function mainLoop() {
     //console.log(model.actionArr[model.actionIndex]);
     switch(model.actionArr[model.actionIndex]) {
@@ -407,12 +408,23 @@ function mainLoop() {
 
         case 'set real bet':
             mv.setBetAmount();
-            if(model.settings.patternZigZag===true) {
-                //mv.setSameDirection();
-                mv.setOppositeDirection();
-            } else {
-                //mv.setSameDirection();
-                mv.setOppositeDirection();
+
+            if(model.settings.alternateDirection) {
+                if(model.settings.alternateDirectionCounter%2!==0) {
+                    mv.setSameDirection();
+                } else {
+                    mv.setOppositeDirection();
+                }
+                model.settings.alternateDirectionCounter++;
+            }
+            else {
+                if(model.settings.patternZigZag===true) {
+                    //mv.setSameDirection();
+                    mv.setOppositeDirection();
+                } else {
+                    //mv.setSameDirection();
+                    mv.setOppositeDirection();
+                }
             }
 
             mv.increaseActionIndex(); // move to next action
