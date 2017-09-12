@@ -32,6 +32,7 @@
  *         011 09/07/2017 start 4,000,000 lowest 2,804,781 OKAY 9AM - 2PM
  *         012 09/08/2017 start 4,000,000 lowest 2,405,747 8:30AM - BUST <MAYBE BECAUSE OF ERRORS or BUG that bets base during dummy bets>
  *         013 09/10/2017 start 20,000 bet 16 OKAY <9 WIN NO LOSS>
+ *         014 09/12/2017 start 20,000 bet 16 OKAY
  *
  *      Testing Summary
  *          From 4,000,000 Balance
