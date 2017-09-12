@@ -53,7 +53,8 @@ model = {
             dummy: 0,
             current: null
         },
-        patternZigZag: false,
+        inreaseOnLoss: true,
+        patternZigZag: true,
         targetIncome: 0,
         zigZagCountBeforeBet: 3
     },
@@ -123,7 +124,11 @@ mv = {
         if(ele.directionSpan.innerText !== lastDirection) {
             ele.directionSpan.click();
         }
-        //console.log('last is: '+lastDirection+'\nbetting same:'+ele.directionSpan.innerText);
+        console.log('last is: '+lastDirection+'\nbetting same:'+ele.directionSpan.innerText);
+    },
+
+    setIncreaseOnLoss: function(tf) {
+        model.settings.inreaseOnLoss = tf;
     },
 
     setOppositeDirection: function() {
@@ -403,7 +408,8 @@ function mainLoop() {
         case 'set real bet':
             mv.setBetAmount();
             if(model.settings.patternZigZag===true) {
-                mv.setSameDirection();
+                //mv.setSameDirection();
+                mv.setOppositeDirection();
             } else {
                 //mv.setSameDirection();
                 mv.setOppositeDirection();
@@ -451,7 +457,12 @@ function mainLoop() {
 
                         console.log('lost');
                         mv.increaseLossCount();
-                        mv.betClickCurrentIncrease();
+
+                        if(model.settings.inreaseOnLoss)
+                            mv.betClickCurrentIncrease();
+                        else
+                            mv.betClickCurrentReset();
+
                         mv.setBetting(false);
                     }
                 } else {
