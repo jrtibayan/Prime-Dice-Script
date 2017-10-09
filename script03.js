@@ -34,6 +34,8 @@
  *         013 09/10/2017 start 20,000 bet 16 OKAY <9 WIN NO LOSS>
  *         014 09/12/2017 start 20,000 bet 16 OKAY
  *         015 09/13/2017 start 20,000 bet 16 OKAY
+ *         016 09/17/2017 start 20,000 bet 16 OKAY
+ *         017 09/18/2017 start 20,000 bet 16 OKAY
  *
  *      Testing Summary
  *          From 4,000,000 Balance
@@ -46,6 +48,15 @@
  *
  */
 
+/*      TO DO
+ *      []  Clean Manageable Code
+ *      []  Record time of Highest  Balance Reached
+ *      []  Record time when user WON
+ *      []  Add functionality to stop after certain time passed
+ *
+ */
+
+
 ele = {
     betBtn: document.querySelector(".index__home__dice__wrap__cta.btn"),
     halfBtn: document.querySelector(".dice__control__content").children[1],
@@ -57,6 +68,12 @@ ele = {
     myBal: document.querySelector(".index__home__header__balance__btc").children[1],
     onLossResetBtn: document.querySelector(".index__home__dice__automated-switch").children[0].children[0].children[0].children[1].children[0].children[0],
     onLossIncreaseBtn: document.querySelector(".index__home__dice__automated-switch").children[0].children[0].children[0].children[1].children[0].children[1]
+};
+
+helper = {
+    addMinutes: function (date, minutes) {
+        return new Date(date.getTime() + minutes*60000);
+    }
 };
 
 stat = {
