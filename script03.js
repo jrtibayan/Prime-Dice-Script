@@ -141,6 +141,9 @@ function getDifferenceFromStartTime() {
 function recordTargetBal() { targetBal = startBal + targetIncome; }
 function recordLowestBalIfItIsLowest() { if( stat.lowestBal > parseFloat(getMyBal()) ) { stat.lowestBal = parseFloat(getMyBal()); } }
 
+function copyHistory() { copy(JSON.stringify(stat.history)) };
+function copyTodayRounds() { copy(JSON.stringify(stat.currentNewRounds)) };
+
 function hasClass(element, cls) { return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1; }
 
 function iWon() { return (!hasClass(ele.lastRollContainer, 'is-negative')); }
@@ -195,7 +198,9 @@ function finish() {
     console.log("Stopping.. Reached target balance");
     console.log("Started with " + parseFloat(startBal).toFixed(8));
     console.log("Current Bal  " + getMyBal());
+    console.log("\n\n Please use copyTodayRounds or copyHistory function and add stat to your code.");
     stop();
+
 }
 
 function targetIsReached() {
