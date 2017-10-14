@@ -138,6 +138,29 @@ function getDifferenceFromStartTime() {
     return diffInMins;
 }
 
+function findConsecLoss(){
+    var highestConsec = 0;
+    var consec=[];
+    for(a = 0; a < stat.history.length; a++) {
+        for(b = 0, consecLossCount = 0; b < stat.history[a].length; b++) {
+            if(stat.history[a][b].win === false) {
+                consecLossCount++;
+            }
+            else {
+                if(highestConsec < consecLossCount) {
+                    highestConsec = consecLossCount;
+                    consec = [];
+                }
+                if(highestConsec == consecLossCount) {
+                    consec.push({consec:highestConsec,dayIndex:a,roundIndex:b-1});
+                }
+                consecLossCount = 0;
+            }
+        }
+    }
+    return consec;
+}
+
 function recordTargetBal() { targetBal = startBal + targetIncome; }
 function recordLowestBalIfItIsLowest() { if( stat.lowestBal > parseFloat(getMyBal()) ) { stat.lowestBal = parseFloat(getMyBal()); } }
 
