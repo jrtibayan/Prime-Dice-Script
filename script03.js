@@ -137,6 +137,7 @@ rolls = [];
 startBal = 0;
 startTime = null;
 betx2Clicks = 5; //5 //13
+origBetClicks = betx2Clicks; // will be used to reset bet click if it was changed
 
 targetIncome = 0.00001000; // 1k // 240k
 targetBal = 0;
@@ -325,10 +326,24 @@ function recordHitsOnLess990() {
     }
 }
 
+function listenForKeyUp() {
+    document.onkeyup = function(e){
+        if(e.keyCode==87) {
+            betx2Clicks++;
+            console.log('betx2Clicks: ' + betx2Clicks);
+        }
+        if(e.keyCode==83) {
+            betx2Clicks = origBetClicks; 
+            console.log('betx2Clicks: ' + betx2Clicks);
+        }
+    };
+}
+
 function mainLoop() {
     switch(actionArr[actionIndex]) {
         case "init":
             console.log('start');
+            listenForKeyUp();
             recordStartTime();
             recordStartBal(); // store my start bal so i can compare for income
             recordTargetBal(); // compute target balance and store to stop after reaching desired win.
